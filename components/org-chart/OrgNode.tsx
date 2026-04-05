@@ -1,9 +1,7 @@
 "use client";
 
-// components/org-chart/OrgNode.tsx
-
 import React from "react";
-import { NodoOrg } from "@/services/orgChartService";
+import { NodoOrg, CONFIG_ESTADO, COLORES_NIVEL } from "@/types/orgChart";
 
 interface OrgNodeProps {
   nodo: NodoOrg & { hijos?: any[] };
@@ -11,23 +9,6 @@ interface OrgNodeProps {
   alHacerClic: (nodo: NodoOrg) => void;
   esRaiz?: boolean;
 }
-
-const CONFIG_ESTADO: Record<string, { etiqueta: string; colorPunto: string; colorBorde: string; colorTexto: string }> = {
-  ACTIVO:              { etiqueta: "ACTIVO",              colorPunto: "bg-emerald-400", colorBorde: "border-emerald-400", colorTexto: "text-emerald-400" },
-  ESTABLE:             { etiqueta: "ESTABLE",             colorPunto: "bg-sky-400",     colorBorde: "border-sky-400",     colorTexto: "text-sky-400"     },
-  ALTA_ROTACION:       { etiqueta: "ALTA ROTACION",       colorPunto: "bg-rose-400",    colorBorde: "border-rose-400",    colorTexto: "text-rose-400"    },
-  NECESIDADES_CRITICAS:{ etiqueta: "NECESIDADES CRITICAS",colorPunto: "bg-amber-400",   colorBorde: "border-amber-400",   colorTexto: "text-amber-400"   },
-  INACTIVO:            { etiqueta: "INACTIVO",            colorPunto: "bg-slate-400",   colorBorde: "border-slate-400",   colorTexto: "text-slate-400"   },
-};
-
-const COLORES_NIVEL: Record<string, string> = {
-  EJECUTIVO:      "text-emerald-400",
-  TECNICO:        "text-sky-400",
-  INFRAESTRUCTURA:"text-violet-400",
-  SEGURIDAD:      "text-rose-400",
-  GESTION:        "text-amber-400",
-  OPERACIONES:    "text-teal-400",
-};
 
 export default function OrgNode({ nodo, estaSeleccionado, alHacerClic, esRaiz = false }: OrgNodeProps) {
   const estado = CONFIG_ESTADO[nodo.estado] ?? CONFIG_ESTADO.ESTABLE;
@@ -93,9 +74,7 @@ export default function OrgNode({ nodo, estaSeleccionado, alHacerClic, esRaiz = 
       </div>
 
       {nodo.estado === "ALTA_ROTACION" && (
-        <span className="mt-2 text-[9px] text-rose-400 font-semibold">
-          {nodo.vacantes} Alta Rotacion
-        </span>
+        <span className="mt-2 text-[9px] text-rose-400 font-semibold">{nodo.vacantes} Alta Rotacion</span>
       )}
       {nodo.estado === "NECESIDADES_CRITICAS" && (
         <span className="mt-2 text-[9px] text-amber-400 font-semibold">Necesidades Criticas</span>

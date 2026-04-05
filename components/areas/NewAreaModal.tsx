@@ -1,5 +1,4 @@
 "use client";
-
 import React, { useState } from "react";
 import { X } from "lucide-react";
 import { crearArea } from "@/services/areasService";

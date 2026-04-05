@@ -1,4 +1,4 @@
-// Backend simulado — se reemplazzara por fetch real a Supabase cuando este disponible
+// Backend simulado — reemplazar por fetch real a Supabase cuando este disponible
 
 export interface Area {
   id: string;
