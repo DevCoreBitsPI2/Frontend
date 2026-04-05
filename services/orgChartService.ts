@@ -1,24 +1,6 @@
-// services/orgChartService.ts
+// Backend simulado — se adaptará al backend real de Supabase cuando esté disponible
 
-export interface NodoOrg {
-  id: string;
-  nombre: string;
-  nivel: "EJECUTIVO" | "TECNICO" | "INFRAESTRUCTURA" | "SEGURIDAD" | "GESTION" | "OPERACIONES";
-  estado: "ACTIVO" | "ESTABLE" | "ALTA_ROTACION" | "NECESIDADES_CRITICAS" | "INACTIVO";
-  cantidadMiembros: number;
-  idPadre: string | null;
-  descripcion: string;
-  avatares: string[];
-  vacantes: number;
-  utilizacionPresupuesto: number;
-  retencion: number;
-  lideres: {
-    id: string;
-    nombre: string;
-    cargo: string;
-    avatar: string;
-  }[];
-}
+import { NodoOrg, NodoArbol } from "@/types/orgChart";
 
 const DATOS_MOCK: NodoOrg[] = [
   {
@@ -28,8 +10,7 @@ const DATOS_MOCK: NodoOrg[] = [
     estado: "ACTIVO",
     cantidadMiembros: 12,
     idPadre: null,
-    descripcion:
-      "Supervisa la estrategia global, la gobernanza corporativa y la toma de decisiones de alto nivel en todas las unidades de negocio.",
+    descripcion: "Supervisa la estrategia global, la gobernanza corporativa y la toma de decisiones de alto nivel en todas las unidades de negocio.",
     avatares: ["SJ", "MT", "AL", "RK"],
     vacantes: 2,
     utilizacionPresupuesto: 91,
@@ -46,8 +27,7 @@ const DATOS_MOCK: NodoOrg[] = [
     estado: "ACTIVO",
     cantidadMiembros: 45,
     idPadre: "1",
-    descripcion:
-      "Responsable de toda la arquitectura tecnica, infraestructura en la nube y protocolos de seguridad en los productos empresariales.",
+    descripcion: "Responsable de toda la arquitectura tecnica, infraestructura en la nube y protocolos de seguridad en los productos empresariales.",
     avatares: ["SJ", "MT", "AL"],
     vacantes: 8,
     utilizacionPresupuesto: 82,
@@ -64,8 +44,7 @@ const DATOS_MOCK: NodoOrg[] = [
     estado: "ESTABLE",
     cantidadMiembros: 8,
     idPadre: "1",
-    descripcion:
-      "Garantiza el cumplimiento normativo, la gestion de riesgos y las funciones de auditoria interna en todos los departamentos.",
+    descripcion: "Garantiza el cumplimiento normativo, la gestion de riesgos y las funciones de auditoria interna en todos los departamentos.",
     avatares: ["AL", "RK"],
     vacantes: 1,
     utilizacionPresupuesto: 74,
@@ -81,8 +60,7 @@ const DATOS_MOCK: NodoOrg[] = [
     estado: "ACTIVO",
     cantidadMiembros: 6,
     idPadre: "2",
-    descripcion:
-      "Lidera el diseno de sistemas, decisiones arquitectonicas y estandares tecnicos para el desarrollo de software empresarial.",
+    descripcion: "Lidera el diseno de sistemas, decisiones arquitectonicas y estandares tecnicos para el desarrollo de software empresarial.",
     avatares: ["JD", "PK"],
     vacantes: 4,
     utilizacionPresupuesto: 88,
@@ -98,8 +76,7 @@ const DATOS_MOCK: NodoOrg[] = [
     estado: "NECESIDADES_CRITICAS",
     cantidadMiembros: 11,
     idPadre: "2",
-    descripcion:
-      "Administra plataformas en la nube, pipelines de DevOps y confiabilidad de infraestructura a escala.",
+    descripcion: "Administra plataformas en la nube, pipelines de DevOps y confiabilidad de infraestructura a escala.",
     avatares: ["PK", "NR"],
     vacantes: 6,
     utilizacionPresupuesto: 95,
@@ -115,8 +92,7 @@ const DATOS_MOCK: NodoOrg[] = [
     estado: "ALTA_ROTACION",
     cantidadMiembros: 9,
     idPadre: "2",
-    descripcion:
-      "Protege los activos organizacionales mediante monitoreo de amenazas, respuesta a incidentes y aplicacion de politicas de seguridad.",
+    descripcion: "Protege los activos organizacionales mediante monitoreo de amenazas, respuesta a incidentes y aplicacion de politicas de seguridad.",
     avatares: ["NR", "BV"],
     vacantes: 3,
     utilizacionPresupuesto: 79,
@@ -137,11 +113,11 @@ export const obtenerNodoPorId = async (id: string): Promise<NodoOrg | undefined>
   return DATOS_MOCK.find((nodo) => nodo.id === id);
 };
 
-export const construirArbol = (nodos: NodoOrg[]): any => {
-  const mapa = new Map<string, any>();
+export const construirArbol = (nodos: NodoOrg[]): NodoArbol => {
+  const mapa = new Map<string, NodoArbol>();
   nodos.forEach((n) => mapa.set(n.id, { ...n, hijos: [] }));
 
-  let raiz: any = null;
+  let raiz: NodoArbol | null = null;
   mapa.forEach((nodo) => {
     if (nodo.idPadre === null) {
       raiz = nodo;
@@ -151,5 +127,6 @@ export const construirArbol = (nodos: NodoOrg[]): any => {
     }
   });
 
+  if (!raiz) throw new Error("No se encontro nodo raiz en el organigrama");
   return raiz;
 };
