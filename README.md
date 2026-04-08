@@ -172,3 +172,21 @@ Los tipos e interfaces del proyecto deben crearse dentro de la carpeta types.
 ```
 
 Ahí se definen las estructuras de datos utilizadas en el proyecto para poder reutilizarlas en **componentes, hooks y servicios**, manteniendo el código más organizado y tipado correctamente.
+
+
+## Los estilos de la aplicacións
+
+Para mantener una interfaz consistente y fácil de mantener, en este proyecto usamos **Tailwind CSS** como base para todos los estilos.
+
+### No usar
+
+- CSS puro (`.css`, `.module.css`)
+- Otras librerías de estilos
+- Estilos inline extensos
+- Estilos con style = {}, usar className
+
+### Usar
+
+- Clases de Tailwind para los estilos
+- Componentes reutilizables cuando aplique
+- Las utilidades de Tailwind para mantener coherencia visual
