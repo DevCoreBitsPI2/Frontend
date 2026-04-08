@@ -13,12 +13,7 @@ export default function Login() {
                 </div>
 
                 <div>
-                    <img
-                        src="/login-image.png"
-                        alt="login"
-                        className="rounded-xl mb-6"
-                    />
-
+                    
                     <h1 className="text-2xl font-bold mb-2">
                         La puerta aplicación para gestionar el talento global
                     </h1>
