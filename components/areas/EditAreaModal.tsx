@@ -18,6 +18,8 @@ export default function EditAreaModal({ area, todasLasAreas, onCerrar, onEditada
   const [activo, setActivo] = useState(area.estado === "ACTIVO");
   const [guardando, setGuardando] = useState(false);
   const [errores, setErrores] = useState<{ nombre?: string }>({});
+  const isActive = activo;
+
 
   const validar = () => {
     const nuevosErrores: typeof errores = {};
@@ -68,9 +70,8 @@ export default function EditAreaModal({ area, todasLasAreas, onCerrar, onEditada
               type="text"
               value={nombre}
               onChange={(e) => { setNombre(e.target.value); setErrores({}); }}
-              className={`w-full px-3.5 py-2.5 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-400 text-[#0F1819] ${
-                errores.nombre ? "border-rose-400 bg-rose-50" : "border-[#d1dde2]"
-              }`}
+              className={`w-full px-3.5 py-2.5 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-400 text-[#0F1819] ${errores.nombre ? "border-rose-400 bg-rose-50" : "border-[#d1dde2]"
+                }`}
             />
             {errores.nombre && <p className="text-xs text-rose-500">{errores.nombre}</p>}
           </div>
@@ -108,19 +109,23 @@ export default function EditAreaModal({ area, todasLasAreas, onCerrar, onEditada
           <div className="flex flex-col gap-1">
             <label className="text-sm font-medium text-[#0F1819]">Estado</label>
             <p className="text-xs text-[#8aa3ad]">Controla si esta area es visible en la planificacion de talento.</p>
-            <div className="flex items-center gap-3 mt-1">
-              <button
-                onClick={() => setActivo(!activo)}
-                className={`relative w-10 h-6 rounded-full transition-colors ${activo ? "bg-emerald-500" : "bg-[#d1dde2]"}`}
-              >
-                <span
-                  className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-transform ${activo ? "translate-x-5" : "translate-x-1"}`}
-                />
-              </button>
-              <span className={`text-sm font-medium ${activo ? "text-emerald-600" : "text-[#8aa3ad]"}`}>
-                {activo ? "Activo" : "Inactivo"}
-              </span>
-            </div>
+            <button
+              onClick={() => setActivo(!activo)}
+              className={`relative w-10 h-6 rounded-full transition-colors ${activo ? "bg-emerald-500" : "bg-[#d1dde2]"
+                }`}
+            >
+              <span
+                className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full shadow transition-transform ${activo ? "translate-x-4" : "translate-x-0"
+                  }`}
+              />
+            </button>
+
+            <span
+              className={`text-sm font-medium ${isActive ? "text-emerald-600" : "text-[#8aa3ad]"
+                }`}
+            >
+              {isActive ? "Activo" : "Inactivo"}
+            </span>
           </div>
         </div>
 
