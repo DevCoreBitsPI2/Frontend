@@ -1,0 +1,87 @@
+"use client";
+
+import React from "react";
+import { NodoOrg, CONFIG_ESTADO, COLORES_NIVEL } from "@/types/orgChart";
+
+interface OrgNodeProps {
+  nodo: NodoOrg & { hijos?: any[] };
+  estaSeleccionado: boolean;
+  alHacerClic: (nodo: NodoOrg) => void;
+  esRaiz?: boolean;
+}
+
+export default function OrgNode({ nodo, estaSeleccionado, alHacerClic, esRaiz = false }: OrgNodeProps) {
+  const estado = CONFIG_ESTADO[nodo.estado] ?? CONFIG_ESTADO.ESTABLE;
+  const colorNivel = COLORES_NIVEL[nodo.nivel] ?? "text-slate-400";
+
+  if (esRaiz) {
+    return (
+      <button
+        onClick={() => alHacerClic(nodo)}
+        className={`relative flex flex-col items-center justify-center rounded-xl px-8 py-4 min-w-[220px] cursor-pointer transition-all duration-200 select-none ${
+          estaSeleccionado
+            ? "bg-[#1E333A] ring-2 ring-emerald-400 shadow-[0_0_20px_rgba(52,211,153,0.25)]"
+            : "bg-[#0F1819] hover:bg-[#1E333A] ring-1 ring-[#203D47]"
+        }`}
+      >
+        <span className={`text-[10px] font-bold tracking-[0.2em] mb-1 ${colorNivel}`}>
+          {nodo.nivel}
+        </span>
+        <span className="text-white font-semibold text-base leading-tight text-center">
+          {nodo.nombre}
+        </span>
+        <div className="flex items-center gap-1.5 mt-2">
+          <span className="text-[#BDD5EA] text-xs">{nodo.cantidadMiembros} Miembros</span>
+          <span className={`w-1.5 h-1.5 rounded-full ${estado.colorPunto}`} />
+        </div>
+      </button>
+    );
+  }
+
+  return (
+    <button
+      onClick={() => alHacerClic(nodo)}
+      className={`relative flex flex-col rounded-xl p-3.5 min-w-[170px] max-w-[190px] w-full cursor-pointer transition-all duration-200 select-none text-left ${
+        estaSeleccionado
+          ? `bg-[#1E333A] ring-2 ${estado.colorBorde} shadow-lg`
+          : "bg-white hover:bg-[#f4f7f8] ring-1 ring-[#d1dde2]"
+      }`}
+    >
+      <div className="flex items-center justify-between mb-2">
+        <span className={`text-[9px] font-bold tracking-widest uppercase ${estaSeleccionado ? colorNivel : "text-slate-400"}`}>
+          {nodo.nivel}
+        </span>
+        <span className={`text-[9px] font-semibold tracking-wider ${estado.colorTexto}`}>
+          {estado.etiqueta}
+        </span>
+      </div>
+
+      <span className={`text-sm font-semibold leading-snug mb-2 ${estaSeleccionado ? "text-white" : "text-[#0F1819]"}`}>
+        {nodo.nombre}
+      </span>
+
+      <div className="flex items-center gap-1.5">
+        <div className="flex -space-x-1.5">
+          {nodo.avatares.slice(0, 3).map((av, i) => (
+            <div key={i} className="w-5 h-5 rounded-full flex items-center justify-center text-[8px] font-bold border border-white bg-[#203D47] text-[#BDD5EA]">
+              {av}
+            </div>
+          ))}
+        </div>
+        <span className={`text-[10px] ${estaSeleccionado ? "text-[#BDD5EA]" : "text-slate-400"}`}>
+          {nodo.cantidadMiembros > 3 ? `+${nodo.cantidadMiembros - 3}` : `${nodo.cantidadMiembros}`}
+        </span>
+      </div>
+
+      {nodo.estado === "ALTA_ROTACION" && (
+        <span className="mt-2 text-[9px] text-rose-400 font-semibold">{nodo.vacantes} Alta Rotacion</span>
+      )}
+      {nodo.estado === "NECESIDADES_CRITICAS" && (
+        <span className="mt-2 text-[9px] text-amber-400 font-semibold">Necesidades Criticas</span>
+      )}
+      {nodo.estado === "ACTIVO" && nodo.vacantes > 0 && (
+        <span className="mt-2 text-[9px] text-slate-400">{nodo.vacantes} Puestos Abiertos</span>
+      )}
+    </button>
+  );
+}
