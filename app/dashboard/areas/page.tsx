@@ -1,20 +1,37 @@
 "use client";
 
-// app/dashboard/areas/page.tsx
-
-import React, { useEffect, useState } from "react";
-import { Area, obtenerAreas, eliminarArea } from "@/services/areasService";
+import React, { useEffect, useState, useCallback } from "react";
+import { Area, obtenerAreas } from "@/services/areasService";
 import AreasTable from "@/components/areas/AreasTable";
 import NewAreaModal from "@/components/areas/NewAreaModal";
+import EditAreaModal from "@/components/areas/EditAreaModal";
+import DeleteAreaModal from "@/components/areas/DeleteAreaModal";
+import Toast from "@/components/areas/Toast";
+import ViewAreaModal from "@/components/areas/ViewAreaModal";
 import { ChevronRight, Plus } from "lucide-react";
+
+interface ToastInfo {
+  mensaje: string;
+  tipo: "exito" | "error";
+}
 
 export default function PaginaAreas() {
   const [areas, setAreas] = useState<Area[]>([]);
   const [cargando, setCargando] = useState(true);
-  const [mostrarModal, setMostrarModal] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [toast, setToast] = useState<ToastInfo | null>(null);
 
-  const cargarAreas = async () => {
+  // Modales
+  const [areaAVer, setAreaAVer] = useState<Area | null>(null);
+  const [mostrarCrear, setMostrarCrear] = useState(false);
+  const [areaAEditar, setAreaAEditar] = useState<Area | null>(null);
+  const [areaAEliminar, setAreaAEliminar] = useState<Area | null>(null);
+
+  const mostrarToast = (mensaje: string, tipo: "exito" | "error") => {
+    setToast({ mensaje, tipo });
+  };
+
+  const cargarAreas = useCallback(async () => {
     setCargando(true);
     try {
       const datos = await obtenerAreas();
@@ -24,23 +41,9 @@ export default function PaginaAreas() {
     } finally {
       setCargando(false);
     }
-  };
+  }, []);
 
-  useEffect(() => { cargarAreas(); }, []);
-
-  const manejarEliminar = async (id: string) => {
-    if (!confirm("¿Estas seguro de que deseas eliminar esta area?")) return;
-    await eliminarArea(id);
-    await cargarAreas();
-  };
-
-  const manejarVer = (area: Area) => {
-    alert(`Ver detalles de: ${area.nombre}`);
-  };
-
-  const manejarEditar = (area: Area) => {
-    alert(`Editar area: ${area.nombre}`);
-  };
+  useEffect(() => { cargarAreas(); }, [cargarAreas]);
 
   return (
     <div className="flex flex-col h-full w-full bg-[#f4f7f8]">
@@ -66,7 +69,7 @@ export default function PaginaAreas() {
             </p>
           </div>
           <button
-            onClick={() => setMostrarModal(true)}
+            onClick={() => setMostrarCrear(true)}
             className="flex items-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-white text-sm font-semibold px-4 py-2.5 rounded-xl transition-colors shrink-0"
           >
             <Plus size={15} />
@@ -74,7 +77,6 @@ export default function PaginaAreas() {
           </button>
         </div>
 
-        {/* Estado de carga */}
         {cargando && (
           <div className="flex items-center justify-center py-20">
             <div className="flex flex-col items-center gap-3">
@@ -93,21 +95,69 @@ export default function PaginaAreas() {
         {!cargando && !error && (
           <AreasTable
             areas={areas}
-            onVer={manejarVer}
-            onEditar={manejarEditar}
-            onEliminar={manejarEliminar}
+            onVer={(area) => setAreaAVer(area)}
+            onEditar={(area) => setAreaAEditar(area)}
+            onEliminar={(id) => {
+              const area = areas.find((a) => a.id === id);
+              if (area) setAreaAEliminar(area);
+            }}
           />
         )}
       </main>
 
-      {/* Modal nueva area */}
-      {mostrarModal && (
+      {/* Modal — Ver detalles */}
+      {areaAVer && (
+        <ViewAreaModal
+          area={areaAVer}
+          onCerrar={() => setAreaAVer(null)}
+        />
+      )}
+
+      {/* Modal — Crear area */}
+      {mostrarCrear && (
         <NewAreaModal
-          onCerrar={() => setMostrarModal(false)}
+          onCerrar={() => setMostrarCrear(false)}
           onCreada={async () => {
-            setMostrarModal(false);
+            setMostrarCrear(false);
             await cargarAreas();
+            mostrarToast("Area creada con exito", "exito");
           }}
+        />
+      )}
+
+      {/* Modal — Editar area */}
+      {areaAEditar && (
+        <EditAreaModal
+          area={areaAEditar}
+          todasLasAreas={areas}
+          onCerrar={() => setAreaAEditar(null)}
+          onEditada={async () => {
+            setAreaAEditar(null);
+            await cargarAreas();
+            mostrarToast("Area editada con exito", "exito");
+          }}
+        />
+      )}
+
+      {/* Modal — Eliminar area */}
+      {areaAEliminar && (
+        <DeleteAreaModal
+          area={areaAEliminar}
+          onCerrar={() => setAreaAEliminar(null)}
+          onEliminada={async () => {
+            setAreaAEliminar(null);
+            await cargarAreas();
+            mostrarToast("Area eliminada con exito", "exito");
+          }}
+        />
+      )}
+
+      {/* Toast de notificacion */}
+      {toast && (
+        <Toast
+          mensaje={toast.mensaje}
+          tipo={toast.tipo}
+          onCerrar={() => setToast(null)}
         />
       )}
     </div>
