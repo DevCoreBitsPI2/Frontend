@@ -2,7 +2,7 @@ type Props = {
   value: string;
   onChange: (value: string) => void;
 };
-
+/* Cambio Prueba - Línea de comentario. */
 export default function AccessLevelToggle({ value, onChange }: Props) {
   return (
     <div className="relative flex bg-gray-200 rounded-lg p-1">
