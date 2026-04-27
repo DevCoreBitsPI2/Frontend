@@ -1,7 +1,5 @@
 "use client";
 
-// components/areas/AreasTable.tsx
-
 import React, { useState } from "react";
 import { Area } from "@/services/areasService";
 import AreaRow from "./AreaRow";

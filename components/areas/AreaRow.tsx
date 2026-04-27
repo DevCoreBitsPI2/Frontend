@@ -1,7 +1,5 @@
 "use client";
 
-// components/areas/AreaRow.tsx
-
 import React from "react";
 import { Area } from "@/services/areasService";
 import { Eye, Pencil, Trash2 } from "lucide-react";

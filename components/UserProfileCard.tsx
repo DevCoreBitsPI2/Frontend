@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { MapPin, Briefcase, Mail, Phone, Calendar, Building2, Users, Edit3, Archive } from 'lucide-react';
+import { MapPin, Calendar, Edit3 } from 'lucide-react';
 
 interface UserProfile {
   idFuncionario: number;
@@ -42,9 +42,11 @@ export const UserProfileCard: React.FC<UserProfileCardProps> = ({ user, onEdit }
                   alt={`${user.nombre} ${user.apellidos}`}
                   className="w-20 h-20 rounded-lg object-cover border-4 border-pale-sky-500 shadow-sm"
                 />
-                <div className="absolute -bottom-1 -right-1 bg-ink-black-500 w-5 h-5 rounded-full border-2 border-white flex items-center justify-center shadow-md">
-                  <span className="text-white text-xs font-bold">✓</span>
-                </div>
+                {user.estado === 'ACTIVO' && (
+                  <div className="absolute -bottom-1 -right-1 bg-ink-black-500 w-5 h-5 rounded-full border-2 border-white flex items-center justify-center shadow-md">
+                    <span className="text-white text-xs font-bold">✓</span>
+                  </div>
+                )}
               </div>
 
               <div className="pt-1 flex-1">
@@ -70,10 +72,10 @@ export const UserProfileCard: React.FC<UserProfileCardProps> = ({ user, onEdit }
 
             <button
               onClick={onEdit}
-              className="px-5 py-2 bg-white border-2 border-platinum-300 text-jet-black-900 rounded-lg hover:bg-platinum-50 transition-colors flex items-center gap-2 font-medium flex-shrink-0"
+              className="px-5 py-2 bg-emerald-500 hover:bg-emerald-400 text-white rounded-xl transition-colors flex items-center gap-2 font-semibold flex-shrink-0 shadow-sm"
             >
               <Edit3 className="w-4 h-4" />
-              Edit Information
+              Editar Información
             </button>
           </div>
         </div>
@@ -84,9 +86,9 @@ export const UserProfileCard: React.FC<UserProfileCardProps> = ({ user, onEdit }
         <div className="max-w-7xl mx-auto px-6">
           <div className="flex gap-8">
             {[
-              { id: 'trayectoria', label: 'Career Path', icon: '◆' },
-              { id: 'contratos', label: 'Contracts', icon: '□' },
-              { id: 'desempeño', label: 'Performance', icon: '▽' }
+              { id: 'trayectoria', label: 'Trayectoria', icon: '◆' },
+              { id: 'contratos', label: 'Contratos', icon: '□' },
+              { id: 'desempeño', label: 'Desempeño', icon: '▽' }
             ].map((tab) => (
               <button
                 key={tab.id}

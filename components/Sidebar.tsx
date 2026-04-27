@@ -1,7 +1,5 @@
 "use client";
 
-// components/Sidebar.tsx
-
 import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -9,18 +7,19 @@ import {
   LayoutDashboard,
   GitFork,
   Users,
+  UserRound,
   FolderKanban,
   FileText,
-  Settings,
   LogOut,
 } from "lucide-react";
 
 const ITEMS_NAV = [
   { etiqueta: "Panel Principal",         href: "/dashboard",           icono: LayoutDashboard },
+  { etiqueta: "Perfil de Usuario",      href: "/dashboard/perfil",    icono: UserRound       },
   { etiqueta: "Organigrama",             href: "/dashboard/org-chart", icono: GitFork         },
-  { etiqueta: "Directorio de Empleados", href: "/dashboard/empleados", icono: Users           },
+  // { etiqueta: "Directorio de Empleados", href: "/dashboard/empleados", icono: Users           },
   { etiqueta: "Gestion de Areas",        href: "/dashboard/areas",     icono: FolderKanban    },
-  { etiqueta: "Contratos",               href: "/dashboard/contratos", icono: FileText        },
+  // { etiqueta: "Contratos",               href: "/dashboard/contratos", icono: FileText        },
 ];
 
 export default function Sidebar() {
@@ -65,13 +64,13 @@ export default function Sidebar() {
 
       {/* Parte inferior */}
       <div className="flex flex-col gap-1 px-3 pb-5 border-t border-[#1E333A] pt-3">
-        <Link
+        {/* <Link
           href="/dashboard/configuracion"
           className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-[#8aa3ad] hover:bg-[#1E333A] hover:text-white transition-all duration-150"
         >
           <Settings size={16} />
           Configuracion
-        </Link>
+        </Link> */}
         <button className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-[#8aa3ad] hover:bg-[#1E333A] hover:text-rose-400 transition-all duration-150 w-full text-left">
           <LogOut size={16} />
           Cerrar Sesion

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface UserInfo {
@@ -178,6 +178,27 @@ export default function EditInfoModal({
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
+  // Cleanup object URLs on unmount or when photo changes
+  useEffect(() => {
+    return () => {
+      if (photoPreview) {
+        URL.revokeObjectURL(photoPreview);
+      }
+    };
+  }, [photoPreview]);
+
+  // Handle Escape key to close modal
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        onClose();
+      }
+    };
+    document.addEventListener("keydown", handleEscape);
+    return () => document.removeEventListener("keydown", handleEscape);
+  }, [isOpen, onClose]);
+
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // ── Validation ──────────────────────────────────────────────────────────────
@@ -197,10 +218,33 @@ export default function EditInfoModal({
   // ── Photo handling ──────────────────────────────────────────────────────────
   const handleFile = useCallback((file: File) => {
     if (!file.type.startsWith("image/")) return;
+    
+    // Validate file size (max 5 MB)
+    const maxSizeMB = 5;
+    const maxSizeBytes = maxSizeMB * 1024 * 1024;
+    if (file.size > maxSizeBytes) {
+      setErrors((prev) => ({
+        ...prev,
+        photo: `El archivo no puede superar ${maxSizeMB}MB`,
+      }));
+      return;
+    }
+    
+    setErrors((prev) => {
+      const newErrors = { ...prev };
+      delete newErrors.photo;
+      return newErrors;
+    });
+    
+    // Revoke previous URL if exists
+    if (photoPreview) {
+      URL.revokeObjectURL(photoPreview);
+    }
+    
     setPhoto(file);
     const url = URL.createObjectURL(file);
     setPhotoPreview(url);
-  }, []);
+  }, [photoPreview]);
 
   const handleDrop = useCallback(
     (e: React.DragEvent) => {
@@ -561,8 +605,6 @@ export default function EditInfoModal({
 
       {/* ── Keyframes ── */}
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');
-
         @keyframes fadeIn {
           from { opacity: 0; }
           to   { opacity: 1; }

@@ -1,65 +1,107 @@
-'use client';
+// app/dashboard/page.tsx
+"use client";
 
-import React, { useState } from 'react';
-import { UserProfileCard } from '@/components/UserProfileCard';
-import EditInfoModal from '@/components/EditInfoModal';
+import React, { useEffect, useState } from "react";
+import { Users, PauseCircle, PersonStanding } from "lucide-react";
 
-// Mock data - simular backend
-const mockUserData = {
-  idFuncionario: 9982,
-  nombre: 'Jonathan',
-  apellidos: 'Doe',
-  cargo: 'Senior Software Architect',
-  area: 'Engineering Department',
-  email: 'john.doe@company.com',
-  phone: '+1 (555) 000-1234',
-  fechaIngreso: '2019-03-01',
-  ubicacion: 'Austin, TX Office',
-  foto: '/assets/jonathan-doe.jpg',
-  estado: 'ACTIVO' as const,
-  fechaNacimiento: '1990-10-24',
-  oficina: 'New York Headquarters',
-  reportaA: 'Sarah Jenkins (Engineering Manager)',
-};
+import Header from "@/components/Header";
+import LoadingSpinner from "@/components/LoadingSpinner";
+import StatsCard from "@/components/dashboard/StatsCard";
+import CriticalContractAlerts from "@/components/dashboard/CriticalContractAlerts";
+import DepartmentalHierarchy from "@/components/dashboard/DepartmentalHierarchy";
+
+import {
+  obtenerEstadisticas,
+  obtenerAlertasContratos,
+  obtenerJerarquiaDepartamental,
+  EstadisticaDashboard,
+  AlertaContrato,
+} from "@/services/dashboardService";
+
+import { NodoOrg } from "@/types/orgChart";
 
 export default function DashboardPage() {
-  const [user, setUser] = useState(mockUserData);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [estadisticas, setEstadisticas] = useState<EstadisticaDashboard | null>(null);
+  const [alertas, setAlertas] = useState<AlertaContrato[]>([]);
+  const [departamentos, setDepartamentos] = useState<NodoOrg[]>([]);
+  const [cargando, setCargando] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleEditProfile = () => {
-    setIsModalOpen(true);
-  };
-
-  const handleSaveInfo = async (data: any) => {
-    try {
-      // TODO: Implementar llamada a API para guardar datos
-      console.log('Datos guardados:', data);
-      setUser(prev => ({
-        ...prev,
-        nombre: data.fullName?.split(' ')[0] || prev.nombre,
-        apellidos: data.fullName?.split(' ').slice(1).join(' ') || prev.apellidos,
-        email: data.emailAddress || prev.email,
-        phone: data.phoneNumber || prev.phone,
-      }));
-      setIsModalOpen(false);
-    } catch (error) {
-      console.error('Error al guardar:', error);
-    }
-  };
+  useEffect(() => {
+    Promise.all([
+      obtenerEstadisticas(),
+      obtenerAlertasContratos(),
+      obtenerJerarquiaDepartamental(),
+    ])
+      .then(([stats, alertasData, depsData]) => {
+        setEstadisticas(stats);
+        setAlertas(alertasData);
+        setDepartamentos(depsData);
+      })
+      .catch(() => setError("No se pudieron cargar los datos del dashboard."))
+      .finally(() => setCargando(false));
+  }, []);
 
   return (
-    <>
-      <UserProfileCard user={user} onEdit={handleEditProfile} />
-      <EditInfoModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        onSave={handleSaveInfo}
-        initialData={{
-          fullName: `${user.nombre} ${user.apellidos}`,
-          emailAddress: user.email,
-          phoneNumber: user.phone,
-        }}
-      />
-    </>
+    <div className="flex flex-col h-full w-full bg-[#f4f7f8]">
+      {/* Header común reutilizable */}
+      <Header user={null} />
+
+      {/* Contenido principal */}
+      <main className="flex-1 px-6 py-6 overflow-auto">
+        {/* Título */}
+        <div className="mb-6">
+          <h1 className="text-xl font-bold text-[#0F1819]">Pulso Organizacional</h1>
+          <p className="text-sm text-[#8aa3ad] mt-0.5">
+            Supervision en tiempo real del capital humano y contratos estrategicos.
+          </p>
+        </div>
+
+        {cargando && <LoadingSpinner mensaje="Cargando panel principal..." />}
+
+        {error && (
+          <div className="bg-white rounded-xl px-6 py-4 border border-rose-200 text-sm text-rose-500">
+            {error}
+          </div>
+        )}
+
+        {!cargando && !error && estadisticas && (
+          <>
+            {/* Tarjetas de estadísticas */}
+            <div className="flex gap-4 mb-6">
+              <StatsCard
+                icono={Users}
+                etiqueta="Personal Activo"
+                valor={estadisticas.personalActivo}
+                variacion={estadisticas.variacionPersonalActivo}
+              />
+              <StatsCard
+                icono={PauseCircle}
+                etiqueta="Suspendidos"
+                valor={estadisticas.suspendidos}
+                etiquetaVariacion={estadisticas.estadoSuspendidos}
+              />
+              <StatsCard
+                icono={PersonStanding}
+                etiqueta="Retirados (año actual)"
+                valor={estadisticas.retiradosYTD}
+                variacion={estadisticas.variacionRetirados}
+              />
+            </div>
+
+            {/* Secciones inferiores */}
+            <div className="grid grid-cols-2 gap-4">
+              <CriticalContractAlerts alertas={alertas} />
+              <DepartmentalHierarchy departamentos={departamentos} />
+            </div>
+          </>
+        )}
+      </main>
+
+      {/* Botón flotante */}
+      <button className="fixed bottom-6 right-6 bg-emerald-500 hover:bg-emerald-400 text-white text-sm font-bold px-6 py-3.5 rounded-2xl shadow-lg transition-colors z-50">
+        Evaluaciones
+      </button>
+    </div>
   );
 }

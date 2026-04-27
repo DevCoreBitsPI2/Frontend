@@ -3,7 +3,8 @@
 // app/dashboard/org-chart/page.tsx
 
 import React, { useEffect, useState } from "react";
-import { NodoOrg, construirArbol, obtenerOrgChart } from "@/services/orgChartService";
+import { construirArbol, obtenerOrgChart } from "@/services/orgChartService";
+import { NodoOrg } from "@/types/orgChart";
 import OrgTree from "@/components/org-chart/OrgTree";
 import AreaDetailsPanel from "@/components/org-chart/AreaDetailsPanel";
 import { ChevronRight } from "lucide-react";
