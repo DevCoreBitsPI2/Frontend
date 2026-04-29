@@ -43,16 +43,13 @@ export default function DashboardPage() {
   }, []);
 
   return (
-    <div className="flex flex-col h-full w-full bg-[#f4f7f8]">
-      {/* Header común reutilizable */}
+    <div className="flex min-h-full w-full flex-col bg-platinum-50">
       <Header user={null} />
 
-      {/* Contenido principal */}
-      <main className="flex-1 px-6 py-6 overflow-auto">
-        {/* Título */}
-        <div className="mb-6">
-          <h1 className="text-xl font-bold text-[#0F1819]">Pulso Organizacional</h1>
-          <p className="text-sm text-[#8aa3ad] mt-0.5">
+      <main className="flex-1 overflow-auto px-6 py-6">
+        <div className="mb-6 space-y-1">
+          <h1 className="text-xl font-bold text-ink-black-900">Pulso Organizacional</h1>
+          <p className="text-sm text-platinum-400">
             Supervision en tiempo real del capital humano y contratos estrategicos.
           </p>
         </div>
@@ -60,15 +57,14 @@ export default function DashboardPage() {
         {cargando && <LoadingSpinner mensaje="Cargando panel principal..." />}
 
         {error && (
-          <div className="bg-white rounded-xl px-6 py-4 border border-rose-200 text-sm text-rose-500">
+          <div className="rounded-xl border border-rose-200 bg-white px-6 py-4 text-sm text-rose-500">
             {error}
           </div>
         )}
 
         {!cargando && !error && estadisticas && (
           <>
-            {/* Tarjetas de estadísticas */}
-            <div className="flex gap-4 mb-6">
+            <div className="mb-6 grid gap-4 md:grid-cols-3">
               <StatsCard
                 icono={Users}
                 etiqueta="Personal Activo"
@@ -89,8 +85,7 @@ export default function DashboardPage() {
               />
             </div>
 
-            {/* Secciones inferiores */}
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid gap-4 xl:grid-cols-2">
               <CriticalContractAlerts alertas={alertas} />
               <DepartmentalHierarchy departamentos={departamentos} />
             </div>
@@ -98,8 +93,7 @@ export default function DashboardPage() {
         )}
       </main>
 
-      {/* Botón flotante */}
-      <button className="fixed bottom-6 right-6 bg-emerald-500 hover:bg-emerald-400 text-white text-sm font-bold px-6 py-3.5 rounded-2xl shadow-lg transition-colors z-50">
+      <button className="fixed bottom-6 right-6 z-50 rounded-2xl bg-emerald-500 px-6 py-3.5 text-sm font-bold text-white shadow-lg transition-colors hover:bg-emerald-400">
         Evaluaciones
       </button>
     </div>

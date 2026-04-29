@@ -17,6 +17,25 @@ const COLORES_NIVEL: Record<string, string> = {
   OPERACIONES:     "bg-[#ECEFF1] text-[#203D47]",
 };
 
+const ANCHOS_BARRA = {
+  0: "w-0",
+  10: "w-[10%]",
+  20: "w-[20%]",
+  30: "w-[30%]",
+  40: "w-[40%]",
+  50: "w-[50%]",
+  60: "w-[60%]",
+  70: "w-[70%]",
+  80: "w-[80%]",
+  90: "w-[90%]",
+  100: "w-full",
+} as const;
+
+function obtenerClaseAnchoBarra(porcentaje: number) {
+  const redondeado = Math.max(0, Math.min(100, Math.round(porcentaje / 10) * 10));
+  return ANCHOS_BARRA[redondeado as keyof typeof ANCHOS_BARRA] ?? "w-full";
+}
+
 export default function DepartmentalHierarchy({ departamentos }: Props) {
   return (
     <div className="bg-white rounded-2xl p-5 border border-[#e4ebee] flex flex-col h-full">
@@ -45,8 +64,7 @@ export default function DepartmentalHierarchy({ departamentos }: Props) {
               {/* Barra de progreso — usa utilizacionPresupuesto que ya es 0-100 */}
               <div className="h-1.5 bg-[#ECEFF1] rounded-full overflow-hidden">
                 <div
-                  className="h-full bg-emerald-500 rounded-full transition-all duration-700"
-                  style={{ width: `${dep.utilizacionPresupuesto}%` }}
+                  className={`h-full bg-emerald-500 rounded-full transition-all duration-700 ${obtenerClaseAnchoBarra(dep.utilizacionPresupuesto)}`}
                 />
               </div>
             </div>

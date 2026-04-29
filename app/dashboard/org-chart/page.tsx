@@ -57,11 +57,9 @@ export default function PaginaOrgChart() {
 
       {/* Área principal del organigrama */}
       <main
-        className="flex-1 relative overflow-hidden"
-        style={{
-          marginRight: nodoSeleccionado ? "300px" : 0,
-          transition: "margin 0.2s ease-out",
-        }}
+        className={`relative flex-1 overflow-hidden transition-[margin] duration-200 ease-out ${
+          nodoSeleccionado ? "mr-[300px]" : "mr-0"
+        }`}
       >
         {cargando && (
           <div className="absolute inset-0 flex items-center justify-center">
