@@ -1,41 +1,54 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
-import EditInfoModal from "@/components/EditInfoModal";
-import { UserProfileCard } from "@/components/UserProfileCard";
-
-const mockUserData = {
-  idFuncionario: 9982,
-  nombre: "Jonathan",
-  apellidos: "Doe",
-  cargo: "Senior Software Architect",
-  area: "Engineering Department",
-  email: "john.doe@company.com",
-  phone: "+1 (555) 000-1234",
-  fechaIngreso: "2019-03-01",
-  ubicacion: "Austin, TX Office",
-  foto: "",
-  estado: "ACTIVO" as const,
-  fechaNacimiento: "1990-10-24",
-  oficina: "New York Headquarters",
-  reportaA: "Sarah Jenkins (Engineering Manager)",
-};
+import LoadingSpinner from "@/components/LoadingSpinner";
+import EditInfoModal from "@/components/perfil/EditInfoModal";
+import UserProfileCard from "@/components/perfil/UserProfileCard";
+import { obtenerPerfilUsuario, actualizarPerfilUsuario } from "@/services/profileService";
+import { UserProfile } from "@/types/funcionario";
 
 export default function PerfilUsuarioPage() {
-  const [user, setUser] = useState(mockUserData);
+  const [user, setUser] = useState<UserProfile | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    obtenerPerfilUsuario()
+      .then((perfil) => setUser(perfil))
+      .catch(() => setError("No se pudo cargar el perfil de usuario."))
+      .finally(() => setLoading(false));
+  }, []);
 
   const handleSaveInfo = async (data: any) => {
-    setUser((prev) => ({
-      ...prev,
-      nombre: data.fullName?.split(" ")[0] || prev.nombre,
-      apellidos: data.fullName?.split(" ").slice(1).join(" ") || prev.apellidos,
-      email: data.emailAddress || prev.email,
-      phone: data.phoneNumber || prev.phone,
-    }));
+    if (!user) return;
+
+    const [nombre, ...restoNombre] = data.fullName?.trim().split(/\s+/) ?? [];
+    const perfilActualizado: UserProfile = {
+      ...user,
+      nombre: nombre || user.nombre,
+      apellidos: restoNombre.length > 0 ? restoNombre.join(" ") : user.apellidos,
+      email: data.emailAddress || user.email,
+      phone: data.phoneNumber || user.phone,
+    };
+
+    const perfilGuardado = await actualizarPerfilUsuario(perfilActualizado);
+    setUser(perfilGuardado);
     setIsModalOpen(false);
   };
+
+  if (loading) {
+    return <LoadingSpinner mensaje="Cargando perfil de usuario..." />;
+  }
+
+  if (error || !user) {
+    return (
+      <div className="rounded-xl border border-rose-200 bg-white px-6 py-4 text-sm text-rose-500">
+        {error || "No se pudo cargar el perfil de usuario."}
+      </div>
+    );
+  }
 
   return (
     <>
