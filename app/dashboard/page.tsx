@@ -21,7 +21,7 @@ import {
 import { NodoOrg } from "@/types/orgChart";
 
 export default function DashboardPage() {
-  const [estadisticas, setEstadisticas] = useState<EstadisticaDashboard | null>(null);
+const [estadisticas, setEstadisticas] = useState<EstadisticaDashboard | null>(null);
   const [alertas, setAlertas] = useState<AlertaContrato[]>([]);
   const [departamentos, setDepartamentos] = useState<NodoOrg[]>([]);
   const [cargando, setCargando] = useState(true);
@@ -102,6 +102,7 @@ export default function DashboardPage() {
       <button className="fixed bottom-6 right-6 bg-emerald-500 hover:bg-emerald-400 text-white text-sm font-bold px-6 py-3.5 rounded-2xl shadow-lg transition-colors z-50">
         Evaluaciones
       </button>
+
     </div>
   );
 }
