@@ -134,7 +134,7 @@ export default function LandingPage() {
               <div className="w-9 h-9 rounded-xl bg-emerald-900 flex items-center justify-center shrink-0">
                 <Shield size={16} className="text-[#2ECC71]" />
               </div>
-              <h2 className="text-xl font-bold text-white">La Solución Vault</h2>
+              <h2 className="text-xl font-bold text-white">La Solución TalentCore</h2>
             </div>
             <ul className="space-y-3">
               {[
