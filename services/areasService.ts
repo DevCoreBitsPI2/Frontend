@@ -1,4 +1,3 @@
-// services/areasService.ts
 // Backend simulado — reemplazar por fetch real a Supabase cuando este disponible
 
 export interface Area {

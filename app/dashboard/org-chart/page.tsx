@@ -3,7 +3,8 @@
 // app/dashboard/org-chart/page.tsx
 
 import React, { useEffect, useState } from "react";
-import { NodoOrg, construirArbol, obtenerOrgChart } from "@/services/orgChartService";
+import { construirArbol, obtenerOrgChart } from "@/services/orgChartService";
+import { NodoOrg } from "@/types/orgChart";
 import OrgTree from "@/components/org-chart/OrgTree";
 import AreaDetailsPanel from "@/components/org-chart/AreaDetailsPanel";
 import { ChevronRight } from "lucide-react";
@@ -56,11 +57,9 @@ export default function PaginaOrgChart() {
 
       {/* Área principal del organigrama */}
       <main
-        className="flex-1 relative overflow-hidden"
-        style={{
-          marginRight: nodoSeleccionado ? "300px" : 0,
-          transition: "margin 0.2s ease-out",
-        }}
+        className={`relative flex-1 overflow-hidden transition-[margin] duration-200 ease-out ${
+          nodoSeleccionado ? "mr-[300px]" : "mr-0"
+        }`}
       >
         {cargando && (
           <div className="absolute inset-0 flex items-center justify-center">
