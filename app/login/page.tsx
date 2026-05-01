@@ -15,7 +15,7 @@ export default function Login() {
                 <div>
                     
                     <h1 className="text-2xl font-bold mb-2">
-                        La puerta aplicación para gestionar el talento global
+                        La puerta de la aplicación para gestionar el talento global
                     </h1>
 
 

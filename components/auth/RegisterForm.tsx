@@ -96,7 +96,7 @@ export default function RegisterForm() {
     return (
         <form
             onSubmit={handleSubmit}
-            className="bg-white p-8 rounded-xl shadow w-87.5 flex flex-col gap-4"
+            className="bg-white p-8 rounded-xl shadow w-[350px] flex flex-col gap-4"
         >
             <h2 className="text-lg font-semibold text-center text-gray-700">
                 Completar registro

@@ -3,7 +3,7 @@
 // components/org-chart/AreaDetailsPanel.tsx
 
 import React from "react";
-import { NodoOrg } from "@/services/orgChartService";
+import { NodoOrg } from "@/types/orgChart";
 import { X, Pencil, Plus, LayoutGrid } from "lucide-react";
 
 interface AreaDetailsPanelProps {

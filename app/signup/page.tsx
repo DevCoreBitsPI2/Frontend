@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import RegisterForm from "@/components/auth/RegisterForm";
 
 export default function Register() {
@@ -22,7 +23,9 @@ export default function Register() {
 
       {/* DERECHA */}
       <div className="bg-gray-100 flex items-center justify-center">
-        <RegisterForm />
+        <Suspense fallback={<div>Cargando...</div>}>
+          <RegisterForm />
+        </Suspense>
       </div>
     </div>
   );

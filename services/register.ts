@@ -1,17 +1,6 @@
 import { RegistroDTO } from "@/types/funcionario";
 
 // Verificación de la invitación que irá como token en la URL.
- /* export const verificarInvitacion = async (token: string) => {
-  const res = await fetch(
-    `http://localhost:3000/auth/verificar-invitacion?token=${token}`
-  );
-
-  if (!res.ok) {
-    throw new Error("Invitación inválida");
-  }
-
-  return res.json();
-}; */
 
 export const verificarInvitacion = async (token: string) => {
 
@@ -29,7 +18,8 @@ export const verificarInvitacion = async (token: string) => {
 
 
 export const registerUser = async (data: RegistroDTO) => {
-  const res = await fetch("http://localhost:3000/auth/register", {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+  const res = await fetch(`${apiUrl}/auth/register`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

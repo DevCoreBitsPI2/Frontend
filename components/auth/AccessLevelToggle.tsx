@@ -16,6 +16,7 @@ export default function AccessLevelToggle({ value, onChange }: Props) {
       {["user", "admin"].map((role) => (
         <button
           key={role}
+          type="button"
           onClick={() => onChange(role)}
           className={`flex-1 z-10 text-sm py-2 rounded-md transition-colors duration-300 ${
             value === role
