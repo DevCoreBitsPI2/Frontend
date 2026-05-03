@@ -2,7 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   LayoutDashboard,
   GitFork,
@@ -13,17 +13,31 @@ import {
   LogOut,
 } from "lucide-react";
 
+import { logOutUser } from "@/services/logOut";
+
 const ITEMS_NAV = [
-  { etiqueta: "Panel Principal",         href: "/dashboard",           icono: LayoutDashboard },
-  { etiqueta: "Perfil de Usuario",      href: "/dashboard/perfil",    icono: UserRound       },
-  { etiqueta: "Organigrama",             href: "/dashboard/org-chart", icono: GitFork         },
-  // { etiqueta: "Directorio de Empleados", href: "/dashboard/empleados", icono: Users           },
-  { etiqueta: "Gestion de Areas",        href: "/dashboard/areas",     icono: FolderKanban    },
-  // { etiqueta: "Contratos",               href: "/dashboard/contratos", icono: FileText        },
+  { etiqueta: "Panel Principal", href: "/dashboard", icono: LayoutDashboard },
+  { etiqueta: "Perfil de Usuario", href: "/dashboard/perfil", icono: UserRound },
+  { etiqueta: "Organigrama", href: "/dashboard/org-chart", icono: GitFork },
+  // { etiqueta: "Directorio de Empleados", href: "/dashboard/empleados", icono: Users },
+  { etiqueta: "Gestion de Areas", href: "/dashboard/areas", icono: FolderKanban },
+  // { etiqueta: "Contratos", href: "/dashboard/contratos", icono: FileText },
 ];
 
 export default function Sidebar() {
+  const router = useRouter();
   const rutaActual = usePathname();
+
+  const handleLogOut = async () => {
+    try {
+      await logOutUser();
+
+      router.push("/login");
+      console.log("Sesión cerrada correctamente");
+    } catch (error) {
+      console.error("Error al cerrar sesión", error);
+    }
+  };
 
   const estaActivo = (href: string) =>
     href === "/dashboard"
@@ -35,16 +49,18 @@ export default function Sidebar() {
       {/* Logo */}
       <div className="flex items-center gap-2.5 px-5 py-5 border-b border-[#1E333A]">
         <div className="w-8 h-8 rounded-lg bg-emerald-500 flex items-center justify-center shrink-0">
-          {/* Espacio reservado para logo — reemplazar con <Image> cuando este disponible */}
           <span className="text-white font-bold text-sm">T</span>
         </div>
-        <span className="text-white font-bold text-base tracking-tight">TalentCore</span>
+        <span className="text-white font-bold text-base tracking-tight">
+          TalentCore
+        </span>
       </div>
 
       {/* Navegacion principal */}
       <nav className="flex flex-col gap-1 px-3 py-4 flex-1">
         {ITEMS_NAV.map(({ etiqueta, href, icono: Icono }) => {
           const activo = estaActivo(href);
+
           return (
             <Link
               key={href}
@@ -55,7 +71,10 @@ export default function Sidebar() {
                   : "text-[#8aa3ad] hover:bg-[#1E333A] hover:text-white"
               }`}
             >
-              <Icono size={16} className={activo ? "text-emerald-400" : "text-[#8aa3ad]"} />
+              <Icono
+                size={16}
+                className={activo ? "text-emerald-400" : "text-[#8aa3ad]"}
+              />
               {etiqueta}
             </Link>
           );
@@ -64,14 +83,10 @@ export default function Sidebar() {
 
       {/* Parte inferior */}
       <div className="flex flex-col gap-1 px-3 pb-5 border-t border-[#1E333A] pt-3">
-        {/* <Link
-          href="/dashboard/configuracion"
-          className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-[#8aa3ad] hover:bg-[#1E333A] hover:text-white transition-all duration-150"
+        <button
+          onClick={handleLogOut}
+          className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-[#8aa3ad] hover:bg-[#1E333A] hover:text-rose-400 transition-all duration-150 w-full text-left"
         >
-          <Settings size={16} />
-          Configuracion
-        </Link> */}
-        <button className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-[#8aa3ad] hover:bg-[#1E333A] hover:text-rose-400 transition-all duration-150 w-full text-left">
           <LogOut size={16} />
           Cerrar Sesion
         </button>

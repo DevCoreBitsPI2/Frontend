@@ -3,156 +3,131 @@
 import { useEffect, useState } from "react";
 import InputField from "../InputField";
 import AuthButton from "./AuthButton";
-import { registerUser, verificarInvitacion } from "@/services/register";
-import { RegistroDTO } from "@/types/funcionario";
-import { useSearchParams } from "next/navigation";
-
-type InvitacionData = {
-    correo: string;
-    cargoId: number;
-    cargoNombre: string;
-};
-
+import LoadingSpinner from "../LoadingSpinner";
+import { useRouter } from "next/navigation";
+import { createClient } from "@/utils/supabase/client";
+import { checkFirstLogin } from "@/services/firstLogin";
+import { updatePassword } from "@/services/passwordFirstTime";
 export default function RegisterForm() {
-    const searchParams = useSearchParams();
-    const token = searchParams.get("token");
+  const supabase = createClient();
+  const router = useRouter();
 
-    const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
+  const [allowed, setAllowed] = useState(false);
 
-    // Datos de invitación
-    const [invitacion, setInvitacion] = useState<InvitacionData | null>(null);
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
 
-    // Datos del usuario
-    const [nombre, setNombre] = useState("");
-    const [apellidos, setApellidos] = useState("");
-    const [password, setPassword] = useState("");
-    const [confirmPassword, setConfirmPassword] = useState("");
+  // 🔥 DEBUG
+  const [debug, setDebug] = useState<any>(null);
 
-    useEffect(() => {
-        const fetchInvitacion = async () => {
-            try {
-                if (!token) return;
+  useEffect(() => {
+    const init = async () => {
+      try {
+        const hash = window.location.hash.substring(1);
+        const params = new URLSearchParams(hash);
 
-                const data = await verificarInvitacion(token);
+        const accessToken = params.get("access_token");
+        const refreshToken = params.get("refresh_token");
 
-                setInvitacion(data);
-            } catch (error) {
-                console.error("Invitación inválida", error);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchInvitacion();
-    }, [token]);
-
-    const handleSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
-        e.preventDefault();
-
-        if (!invitacion) return;
-
-        if (password !== confirmPassword) {
-            console.error("Las contraseñas no coinciden");
-            return;
+        if (!accessToken || !refreshToken) {
+          setLoading(false);
+          return;
         }
 
-        try {
-            const data: RegistroDTO = {
-                nombre,
-                apellidos,
-                correo: invitacion.correo,
-                password,
-                cargoId: invitacion.cargoId,
-            };
+        // 1. Crear sesión
+        await supabase.auth.setSession({
+          access_token: accessToken,
+          refresh_token: refreshToken,
+        });
 
-            await registerUser(data);
+        // 2. Obtener usuario
+        const { data } = await supabase.auth.getUser();
+        const user = data.user;
 
-            console.log("Usuario registrado correctamente");
+        if (!user) throw new Error("Usuario no encontrado");
 
-        } catch (error) {
-            console.error(error);
+        // 3. Validar primer login
+        const result = await checkFirstLogin(user.id);
+
+        // 🔥 GUARDAR DEBUG
+        setDebug(result);
+
+        // 🔥 Soporta ambos formatos:
+        const isFirstLogin =
+          typeof result === "boolean"
+            ? result
+            : result?.isFirstLogin;
+
+        if (!isFirstLogin) {
+          router.push("/login");
+          return;
         }
+
+        setAllowed(true);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setLoading(false);
+      }
     };
 
-    if (loading) {
-        return (
-            <div className="bg-white p-8 rounded-xl shadow w-87.5 flex flex-col items-center justify-center gap-4">
+    init();
+  }, []);
 
-                
-                <div className="w-10 h-10 border-4 border-gray-300 border-t-blue-600 rounded-full animate-spin"></div>
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
 
-                
-                <p className="text-sm text-gray-500">
-                    Verificando invitación...
-                </p>
-            </div>
-        );
+    if (password !== confirmPassword) {
+      console.error("Las contraseñas no coinciden");
+      return;
     }
 
-    if (!invitacion) {
-        return <p className="text-red-500">Invitación inválida o expirada</p>;
-    }
+    try {
+      
+        await updatePassword(password);
 
+      router.push("/login");
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  if (loading) return <LoadingSpinner />;
+
+  if (!allowed)
     return (
-        <form
-            onSubmit={handleSubmit}
-            className="bg-white p-8 rounded-xl shadow w-[350px] flex flex-col gap-4"
-        >
-            <h2 className="text-lg font-semibold text-center text-gray-700">
-                Completar registro
-            </h2>
-
-            {/* Nombre */}
-            <InputField
-                label="Nombre"
-                placeholder="Juan"
-                value={nombre}
-                onChange={(e) => setNombre(e.target.value)}
-            />
-
-            {/* Apellidos */}
-            <InputField
-                label="Apellidos"
-                placeholder="Zuluaga"
-                value={apellidos}
-                onChange={(e) => setApellidos(e.target.value)}
-            />
-
-            {/* Correo (bloqueado) */}
-            <InputField
-                label="Correo"
-                value={invitacion.correo}
-                onChange={() => { }}
-                disabled
-            />
-
-            {/* Cargo (bloqueado) */}
-            <InputField
-                label="Cargo asignado"
-                value={invitacion.cargoNombre}
-                onChange={() => { }}
-                disabled
-            />
-
-            {/* Password */}
-            <InputField
-                label="Contraseña"
-                type="password"
-                placeholder="Crea una contraseña"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-            />
-
-            {/* Confirm Password */}
-            <InputField
-                label="Confirmar contraseña"
-                type="password"
-                placeholder="Repite la contraseña"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-            />
-
-            <AuthButton text="Completar registro" />
-        </form>
+      <div className="text-center">
+        <p>No autorizado</p>
+      </div>
     );
+
+  return (
+    <form
+      onSubmit={handleSubmit}
+      className="bg-white p-8 rounded-xl shadow w-[350px] flex flex-col gap-4"
+    >
+      <h2 className="text-lg font-semibold text-center text-gray-700">
+        Definir contraseña
+      </h2>
+
+      <InputField
+        label="Contraseña"
+        type="password"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+      />
+
+      <InputField
+        label="Confirmar contraseña"
+        type="password"
+        value={confirmPassword}
+        onChange={(e) => setConfirmPassword(e.target.value)}
+      />
+
+      <AuthButton text="Guardar contraseña" />
+
+      
+    </form>
+  );
 }
