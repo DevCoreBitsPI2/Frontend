@@ -132,28 +132,45 @@ export interface GetPositionsFilter {
 export const obtenerPosiciones = async (
   filters?: GetPositionsFilter
 ): Promise<PositionsResponse> => {
+  // Delay simulado de backend
   await new Promise((resolve) => setTimeout(resolve, 400));
 
   const {
     searchText = "",
     status = "all",
+    tab = "All",
     page = 1,
-    pageSize = 10,
+    pageSize = 4,
   } = filters || {};
 
-  let filtered = POSITIONS_MOCK;
+  let filtered = [...POSITIONS_MOCK];
 
-  // Filtrar por búsqueda
-  if (searchText) {
-    filtered = filtered.filter(
-      (pos) =>
-        pos.nombre.toLowerCase().includes(searchText.toLowerCase()) ||
-        pos.id.toLowerCase().includes(searchText.toLowerCase())
-    );
+  // Mapear tabs a filtros de estado
+  const getStatusByTab = (tabName: string): string | null => {
+    if (tabName === "Hierarchy") return "Active";
+    if (tabName === "Archived") return "Drafting";
+    return null; // "All" no filtra por estado
+  };
+
+  // Filtrar por búsqueda (en nombre, ID, posición superior, o nombres de empleados)
+  if (searchText.trim()) {
+    const searchLower = searchText.toLowerCase();
+    filtered = filtered.filter((pos) => {
+      const matchesNombre = pos.nombre.toLowerCase().includes(searchLower);
+      const matchesId = pos.id.toLowerCase().includes(searchLower);
+      const matchesSuperior = pos.posicionSuperior?.toLowerCase().includes(searchLower) || false;
+      const matchesEmpleados = pos.empleados.some((emp) =>
+        emp.nombre.toLowerCase().includes(searchLower)
+      );
+      return matchesNombre || matchesId || matchesSuperior || matchesEmpleados;
+    });
   }
 
-  // Filtrar por estado
-  if (status !== "all") {
+  // Filtrar por estado basado en tab o status directo
+  const statusByTab = getStatusByTab(tab);
+  if (statusByTab) {
+    filtered = filtered.filter((pos) => pos.estado === statusByTab);
+  } else if (status && status !== "all") {
     filtered = filtered.filter((pos) => pos.estado === status);
   }
 

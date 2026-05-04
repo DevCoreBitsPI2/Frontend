@@ -6,14 +6,14 @@ import PositionRow from "./PositionRow";
 
 interface PositionsTableProps {
   searchText: string;
-  status: "Active" | "Drafting" | "all";
+  tab: "All" | "Hierarchy" | "Archived";
   onEdit?: (position: Position) => void;
-  onDelete?: (positionId: string) => void;
+  onDelete?: (position: Position) => void;
 }
 
 export default function PositionsTable({
   searchText,
-  status,
+  tab,
   onEdit,
   onDelete,
 }: PositionsTableProps) {
@@ -23,7 +23,7 @@ export default function PositionsTable({
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchText, status]);
+  }, [searchText, tab]);
 
   useEffect(() => {
     const loadPositions = async () => {
@@ -31,7 +31,7 @@ export default function PositionsTable({
       try {
         const data = await obtenerPosiciones({
           searchText,
-          status,
+          tab,
           page: currentPage,
           pageSize: 4,
         });
@@ -93,7 +93,7 @@ export default function PositionsTable({
                 key={position.id}
                 position={position}
                 onEdit={() => onEdit?.(position)}
-                onDelete={() => onDelete?.(position.id)}
+                onDelete={() => onDelete?.(position)}
               />
             ))}
           </tbody>

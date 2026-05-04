@@ -4,6 +4,8 @@ import { useState } from "react";
 import PositionsTabs from "@/components/areas/positions/PositionsTabs";
 import PositionsTable from "@/components/areas/positions/PositionsTable";
 import NewPositionModal from "@/components/areas/positions/NewPositionModal";
+import EditPositionModal from "@/components/areas/positions/EditPositionModal";
+import DeletePositionModal from "@/components/areas/positions/DeletePositionModal";
 import { Position } from "@/services/positionsService";
 
 export default function PositionsPage() {
@@ -12,26 +14,40 @@ export default function PositionsPage() {
   );
   const [searchText, setSearchText] = useState("");
   const [showNewModal, setShowNewModal] = useState(false);
-  const [statusFilter, setStatusFilter] = useState<"Active" | "Drafting" | "all">(
-    "all"
-  );
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [selectedPosition, setSelectedPosition] = useState<Position | null>(null);
+  const [deletePositionId, setDeletePositionId] = useState<string | null>(null);
+  const [deletePositionName, setDeletePositionName] = useState<string | null>(null);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
 
-  // Map tabs to status filters
-  const getStatusFilter = (tab: string): "Active" | "Drafting" | "all" => {
-    if (tab === "Hierarchy") return "Active";
-    if (tab === "Archived") return "Drafting";
-    return "all";
+  const handleEditPosition = (position: Position) => {
+    setSelectedPosition(position);
+    setShowEditModal(true);
+  };
+
+  const handleDeletePosition = (position: Position) => {
+    setDeletePositionId(position.id);
+    setDeletePositionName(position.nombre);
+    setShowDeleteModal(true);
   };
 
   const handleTabChange = (tab: "All" | "Hierarchy" | "Archived") => {
     setActiveTab(tab);
-    setStatusFilter(getStatusFilter(tab));
   };
 
-  const handlePositionCreated = (position: Position) => {
-    // Re-render by changing tab (this would trigger data refetch)
-    setActiveTab("All");
-    setStatusFilter("all");
+  const handlePositionCreated = () => {
+    setRefreshTrigger((prev) => prev + 1);
+  };
+
+  const handlePositionEdited = () => {
+    setRefreshTrigger((prev) => prev + 1);
+    setShowEditModal(false);
+  };
+
+  const handlePositionDeleted = () => {
+    setRefreshTrigger((prev) => prev + 1);
+    setShowDeleteModal(false);
   };
 
   return (
@@ -83,16 +99,11 @@ export default function PositionsPage() {
           {/* Table */}
           <div className="p-6">
             <PositionsTable
+              key={refreshTrigger}
               searchText={searchText}
-              status={statusFilter}
-              onEdit={(position) => {
-                // TODO: Implement edit modal
-                console.log("Edit:", position);
-              }}
-              onDelete={(positionId) => {
-                // TODO: Implement delete functionality
-                console.log("Delete:", positionId);
-              }}
+              tab={activeTab}
+              onEdit={handleEditPosition}
+              onDelete={handleDeletePosition}
             />
           </div>
         </div>
@@ -103,6 +114,30 @@ export default function PositionsPage() {
         isOpen={showNewModal}
         onClose={() => setShowNewModal(false)}
         onSuccess={handlePositionCreated}
+      />
+
+      {/* Edit Position Modal */}
+      <EditPositionModal
+        isOpen={showEditModal}
+        position={selectedPosition}
+        onClose={() => {
+          setShowEditModal(false);
+          setSelectedPosition(null);
+        }}
+        onSuccess={handlePositionEdited}
+      />
+
+      {/* Delete Position Modal */}
+      <DeletePositionModal
+        isOpen={showDeleteModal}
+        positionId={deletePositionId}
+        positionName={deletePositionName}
+        onClose={() => {
+          setShowDeleteModal(false);
+          setDeletePositionId(null);
+          setDeletePositionName(null);
+        }}
+        onSuccess={handlePositionDeleted}
       />
     </div>
   );

@@ -5,8 +5,8 @@ import { Position } from "@/services/positionsService";
 
 interface PositionRowProps {
   position: Position;
-  onEdit?: () => void;
-  onDelete?: () => void;
+  onEdit?: (position: Position) => void;
+  onDelete?: (position: Position) => void;
 }
 
 export default function PositionRow({
@@ -49,7 +49,7 @@ export default function PositionRow({
         </div>
       </td>
       <td className="px-6 py-4 text-[#203D47] text-sm">
-        <span className="hover:text-[#0F1819] transition-colors">{position.posicionSuperior || "-"}</span>
+        <span className="hover:text-[#0F1819] transition-colors">{position.posicionSuperior || "—"}</span>
       </td>
       <td className="px-6 py-4">
         <span className={`px-2.5 py-1 rounded text-xs font-semibold ${statusColor}`}>
@@ -67,7 +67,7 @@ export default function PositionRow({
           <div className="absolute right-0 mt-2 w-40 bg-white border border-[#BDD5EA] rounded shadow-md z-50 py-1">
             <button
               onClick={() => {
-                onEdit?.();
+                onEdit?.(position);
                 setShowMenu(false);
               }}
               className="block w-full text-left px-4 py-2 text-[#203D47] hover:bg-[#ECEFF1] text-sm"
@@ -76,7 +76,7 @@ export default function PositionRow({
             </button>
             <button
               onClick={() => {
-                onDelete?.();
+                onDelete?.(position);
                 setShowMenu(false);
               }}
               className="block w-full text-left px-4 py-2 text-red-600 hover:bg-[#ECEFF1] text-sm"
