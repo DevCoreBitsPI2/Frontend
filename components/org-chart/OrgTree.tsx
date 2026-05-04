@@ -11,7 +11,9 @@ interface OrgTreeProps {
   tree: PositionTree;
   selectedId: string | null;
   onSelect: (pos: Position) => void;
-  onAddChild?: (parentId: string) => void;
+  onAddChild?: (parent: Position) => void;
+  onEdit?: (pos: Position) => void;
+  onDetach?: (pos: Position) => void;
   scale: number;
   onZoomIn: () => void;
   onZoomOut: () => void;
@@ -23,12 +25,16 @@ function NodeWithChildren({
   selectedId,
   onSelect,
   onAddChild,
+  onEdit,
+  onDetach,
   isRoot = false,
 }: {
   node: PositionTree;
   selectedId: string | null;
   onSelect: (pos: Position) => void;
-  onAddChild?: (parentId: string) => void;
+  onAddChild?: (parent: Position) => void;
+  onEdit?: (pos: Position) => void;
+  onDetach?: (pos: Position) => void;
   isRoot?: boolean;
 }) {
   const hasChildren = node.children.length > 0;
@@ -42,20 +48,22 @@ function NodeWithChildren({
         onClick={onSelect}
         isRoot={isRoot}
         isLeaf={isLeaf}
+        onEdit={onEdit}
+        onDetach={onDetach}
       />
 
       {hasChildren && (
         <>
-          {/* Vertical line from node down */}
+          {/* Vertical line down from node */}
           <div style={{ width: 1, height: 26, background: LINE }} />
 
-          {/* Add-child button for non-root nodes */}
+          {/* Add-child button — only for non-root nodes with children */}
           {!isRoot && (
             <>
               <button
                 onClick={(e) => {
                   e.stopPropagation();
-                  onAddChild?.(node.id);
+                  onAddChild?.(node);
                 }}
                 title="Add child position"
                 className="w-6 h-6 rounded-full bg-emerald-500 hover:bg-emerald-400 flex items-center justify-center text-white transition-colors shadow-sm z-10"
@@ -73,6 +81,8 @@ function NodeWithChildren({
               selectedId={selectedId}
               onSelect={onSelect}
               onAddChild={onAddChild}
+              onEdit={onEdit}
+              onDetach={onDetach}
             />
           ) : (
             <div className="flex items-start">
@@ -98,12 +108,13 @@ function NodeWithChildren({
                         }}
                       />
                     </div>
-
                     <NodeWithChildren
                       node={child}
                       selectedId={selectedId}
                       onSelect={onSelect}
                       onAddChild={onAddChild}
+                      onEdit={onEdit}
+                      onDetach={onDetach}
                     />
                   </div>
                 );
@@ -121,6 +132,8 @@ export default function OrgTree({
   selectedId,
   onSelect,
   onAddChild,
+  onEdit,
+  onDetach,
   scale,
   onZoomIn,
   onZoomOut,
@@ -132,7 +145,9 @@ export default function OrgTree({
 
   const onMouseDown = useCallback(
     (e: React.MouseEvent) => {
-      if ((e.target as HTMLElement).closest("button")) return;
+      const el = e.target as HTMLElement;
+      // Don't start drag when clicking on nodes or buttons
+      if (el.closest("button") || el.closest("[data-nodecard]")) return;
       setDragging(true);
       dragStart.current = { x: e.clientX, y: e.clientY, ox: offset.x, oy: offset.y };
     },
@@ -161,7 +176,7 @@ export default function OrgTree({
 
   return (
     <div className="relative flex-1 overflow-hidden flex flex-col">
-      {/* Toolbar row */}
+      {/* Toolbar */}
       <div className="flex items-center justify-between px-5 py-3.5 border-b border-[#f0f4f5] shrink-0">
         <span className="text-sm font-semibold text-[#0F1819]">Hierarchy Tree</span>
         <div className="flex items-center gap-0.5">
@@ -204,6 +219,8 @@ export default function OrgTree({
               selectedId={selectedId}
               onSelect={onSelect}
               onAddChild={onAddChild}
+              onEdit={onEdit}
+              onDetach={onDetach}
               isRoot
             />
           </div>
