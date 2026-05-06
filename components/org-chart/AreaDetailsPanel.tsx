@@ -23,6 +23,7 @@ interface Props {
   onSuperiorChange: (v: string) => void;
   onReportsChange: (v: string[]) => void;
   onClose: () => void;
+  onDetach?: () => void;
 }
 
 export default function PositionDetailPanel({
@@ -33,6 +34,7 @@ export default function PositionDetailPanel({
   onSuperiorChange,
   onReportsChange,
   onClose,
+  onDetach,
 }: Props) {
   if (!position) return null;
 
@@ -148,7 +150,10 @@ export default function PositionDetailPanel({
             Detaching this position from the hierarchy will make it an unassigned node. All children
             will also lose their reporting lineage.
           </p>
-          <button className="w-full flex items-center justify-center gap-2 border border-rose-200 text-rose-500 hover:bg-rose-50 text-sm font-semibold py-2.5 rounded-xl transition-colors">
+          <button
+            onClick={onDetach}
+            className="w-full flex items-center justify-center gap-2 border border-rose-200 text-rose-500 hover:bg-rose-50 text-sm font-semibold py-2.5 rounded-xl transition-colors"
+          >
             <Link2Off size={14} />
             Detach from Hierarchy
           </button>
