@@ -117,10 +117,7 @@ const ReviewStep: React.FC<Props> = ({ data, employeeId }) => {
           {/* Divider */}
           <div className="h-px bg-gray-600 my-4" />
 
-          {/* QR Code Area */}
-          <div className="bg-white rounded p-2 mb-4 h-16 flex items-center justify-center">
-            <div className="text-xs text-gray-400">QR Code</div>
-          </div>
+
 
           {/* Employee ID */}
           <div className="text-xs font-mono text-gray-300">{employeeId || "EMP-2024-001"}</div>
