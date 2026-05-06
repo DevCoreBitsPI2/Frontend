@@ -1,0 +1,152 @@
+export type TipoContrato = "FIJO" | "INDEFINIDO" | "SERVICIO" | "TIEMPO_PARCIAL";
+
+export type EstadoContrato =
+  | "ACTIVO"
+  | "RENOVADO"
+  | "EXPIRADO"
+  | "ANULADO";
+
+export type ValidezContrato = "ONGOING" | "COMPLETED" | "EXPIRED" | "VOIDED";
+
+export interface Contrato {
+  id: string;
+  idEmpleado: string;
+  tipo: TipoContrato;
+  fechaInicio: string;       // ISO 'YYYY-MM-DD'
+  fechaFin: string | null;   // null = indefinido
+  salarioBase: number;
+  notas: string;
+  documentoNombre?: string;
+  estado: EstadoContrato;
+  validez: ValidezContrato;
+  creadoEn: string;
+}
+
+const CONTRATOS_MOCK: Contrato[] = [
+  {
+    id: "c-001",
+    idEmpleado: "9982",
+    tipo: "INDEFINIDO",
+    fechaInicio: "2022-01-15",
+    fechaFin: null,
+    salarioBase: 95000,
+    notas: "Contrato indefinido vigente.",
+    estado: "ACTIVO",
+    validez: "ONGOING",
+    creadoEn: "2022-01-15",
+  },
+  {
+    id: "c-002",
+    idEmpleado: "9982",
+    tipo: "FIJO",
+    fechaInicio: "2021-01-15",
+    fechaFin: "2022-01-14",
+    salarioBase: 85000,
+    notas: "Contrato a termino fijo renovado.",
+    estado: "RENOVADO",
+    validez: "COMPLETED",
+    creadoEn: "2021-01-15",
+  },
+  {
+    id: "c-003",
+    idEmpleado: "9982",
+    tipo: "FIJO",
+    fechaInicio: "2020-01-10",
+    fechaFin: "2021-01-09",
+    salarioBase: 78000,
+    notas: "Contrato a termino fijo expirado.",
+    estado: "EXPIRADO",
+    validez: "EXPIRED",
+    creadoEn: "2020-01-10",
+  },
+  {
+    id: "c-004",
+    idEmpleado: "9982",
+    tipo: "SERVICIO",
+    fechaInicio: "2019-10-01",
+    fechaFin: "2019-12-31",
+    salarioBase: 12000,
+    notas: "Contrato de prestacion de servicios anulado.",
+    estado: "ANULADO",
+    validez: "VOIDED",
+    creadoEn: "2019-10-01",
+  },
+];
+
+export interface NuevoContratoDTO {
+  idEmpleado: string;
+  tipo: TipoContrato;
+  fechaInicio: string;
+  fechaFin: string | null;
+  salarioBase: number;
+  notas: string;
+  documentoNombre?: string;
+}
+
+export const obtenerContratosPorEmpleado = async (
+  idEmpleado: string,
+): Promise<Contrato[]> => {
+  await new Promise((resolve) => setTimeout(resolve, 300));
+  return CONTRATOS_MOCK.filter((c) => c.idEmpleado === idEmpleado);
+};
+
+export const crearContrato = async (
+  datos: NuevoContratoDTO,
+): Promise<Contrato> => {
+  await new Promise((resolve) => setTimeout(resolve, 400));
+
+  const nuevo: Contrato = {
+    ...datos,
+    id: `c-${Date.now()}`,
+    estado: "ACTIVO",
+    validez: "ONGOING",
+    creadoEn: new Date().toISOString().slice(0, 10),
+  };
+
+  CONTRATOS_MOCK.unshift(nuevo);
+  return nuevo;
+};
+
+export const eliminarContrato = async (id: string): Promise<void> => {
+  await new Promise((resolve) => setTimeout(resolve, 250));
+  const index = CONTRATOS_MOCK.findIndex((c) => c.id === id);
+  if (index !== -1) CONTRATOS_MOCK.splice(index, 1);
+};
+
+// Reglas de validacion para mostrar el panel "Validation Status"
+export interface ResultadoValidacion {
+  rangoFechasValido: boolean;
+  sinSolapamiento: boolean;
+  presupuestoAprobado: boolean;
+}
+
+export const validarContrato = async (
+  idEmpleado: string,
+  fechaInicio: string,
+  fechaFin: string | null,
+  salario: number,
+): Promise<ResultadoValidacion> => {
+  await new Promise((resolve) => setTimeout(resolve, 150));
+
+  const inicio = new Date(fechaInicio);
+  const fin = fechaFin ? new Date(fechaFin) : null;
+
+  const rangoFechasValido =
+    !!fechaInicio && (fin ? fin.getTime() > inicio.getTime() : true);
+
+  const contratosEmpleado = CONTRATOS_MOCK.filter(
+    (c) => c.idEmpleado === idEmpleado && c.estado === "ACTIVO",
+  );
+
+  const sinSolapamiento = !contratosEmpleado.some((c) => {
+    const cInicio = new Date(c.fechaInicio).getTime();
+    const cFin = c.fechaFin ? new Date(c.fechaFin).getTime() : Infinity;
+    const nuevoInicio = inicio.getTime();
+    const nuevoFin = fin ? fin.getTime() : Infinity;
+    return nuevoInicio <= cFin && nuevoFin >= cInicio;
+  });
+
+  const presupuestoAprobado = salario > 0 && salario <= 500000;
+
+  return { rangoFechasValido, sinSolapamiento, presupuestoAprobado };
+};

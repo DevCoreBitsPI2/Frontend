@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
@@ -19,9 +18,9 @@ const ITEMS_NAV = [
   { etiqueta: "Panel Principal", href: "/dashboard", icono: LayoutDashboard },
   { etiqueta: "Perfil de Usuario", href: "/dashboard/perfil", icono: UserRound },
   { etiqueta: "Organigrama", href: "/dashboard/org-chart", icono: GitFork },
-  // { etiqueta: "Directorio de Empleados", href: "/dashboard/empleados", icono: Users },
+  { etiqueta: "Directorio de Empleados", href: "/dashboard/empleados", icono: Users },
   { etiqueta: "Gestion de Areas", href: "/dashboard/areas", icono: FolderKanban },
-  // { etiqueta: "Contratos", href: "/dashboard/contratos", icono: FileText },
+  { etiqueta: "Contratos", href: "/dashboard/contratos", icono: FileText },
 ];
 
 export default function Sidebar() {
