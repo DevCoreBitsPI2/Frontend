@@ -34,7 +34,7 @@ const Page = () => {
       if (res.success) {
         setEmployeeId(res.employeeId);
         // Redirigir al directorio de empleados después de confirmar
-        setTimeout(() => router.push('/dashboard/employees'), 1000);
+        setTimeout(() => router.push('/dashboard/empleados'), 1000);
       }
     }
   };
