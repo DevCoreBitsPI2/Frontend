@@ -28,7 +28,7 @@ const WorkDetailsStep: React.FC<Props> = ({ data, onChange }) => {
         <select
           value={data.areaId || ""}
           onChange={(e) => onChange({ areaId: e.target.value, positionId: "" })}
-          className="w-full px-4 py-3 border-2 border-gray-300 rounded text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#2ECC71] focus:border-[#2ECC71]"
+          className="w-full px-4 py-3 border-2 border-gray-300 rounded text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#2ECC71] focus:border-[#2ECC71] text-gray-700"
         >
           <option value="">Select Area</option>
           {AREAS_MOCK.map((a) => (
@@ -47,7 +47,7 @@ const WorkDetailsStep: React.FC<Props> = ({ data, onChange }) => {
         <select
           value={data.positionId || ""}
           onChange={(e) => onChange({ positionId: e.target.value })}
-          className="w-full px-4 py-3 border-2 border-gray-300 rounded text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#2ECC71] focus:border-[#2ECC71]"
+          className="w-full px-4 py-3 border-2 border-gray-300 rounded text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#2ECC71] focus:border-[#2ECC71] text-gray-700"
         >
           <option value="">Select Position</option>
           {positions.map((p: any) => (
@@ -67,7 +67,7 @@ const WorkDetailsStep: React.FC<Props> = ({ data, onChange }) => {
           type="date"
           value={data.hireDate || ""}
           onChange={(e) => onChange({ hireDate: e.target.value })}
-          className="w-full px-4 py-3 border-2 border-gray-300 rounded text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#2ECC71] focus:border-[#2ECC71]"
+          className="w-full px-4 py-3 border-2 border-gray-300 rounded text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#2ECC71] focus:border-[#2ECC71] text-gray-700"
         />
       </div>
 
@@ -79,7 +79,7 @@ const WorkDetailsStep: React.FC<Props> = ({ data, onChange }) => {
         <select
           value={data.contractType || ""}
           onChange={(e) => onChange({ contractType: e.target.value })}
-          className="w-full px-4 py-3 border-2 border-gray-300 rounded text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#2ECC71] focus:border-[#2ECC71]"
+          className="w-full px-4 py-3 border-2 border-gray-300 rounded text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#2ECC71] focus:border-[#2ECC71] text-gray-700"
         >
           <option value="">Select Type</option>
           {CONTRACT_TYPES.map((c) => (

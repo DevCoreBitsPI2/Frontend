@@ -49,7 +49,7 @@ const PersonalDataStep: React.FC<Props> = ({ data, onChange }) => {
             type="text"
             value={data.fullName || ""}
             onChange={(e) => onChange({ fullName: e.target.value })}
-            className="w-full px-4 py-3 border-2 border-gray-300 rounded text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#2ECC71] focus:border-[#2ECC71]"
+            className="w-full px-4 py-3 border-2 border-gray-300 rounded text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#2ECC71] focus:border-[#2ECC71] text-gray-700"
             placeholder="Jonathan Doe"
           />
         </div>
@@ -63,7 +63,7 @@ const PersonalDataStep: React.FC<Props> = ({ data, onChange }) => {
             <select
               value={data.documentType || ""}
               onChange={(e) => onChange({ documentType: e.target.value })}
-              className="w-full px-4 py-3 border-2 border-gray-300 rounded text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#2ECC71] focus:border-[#2ECC71]"
+              className="w-full px-4 py-3 border-2 border-gray-300 rounded text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#2ECC71] focus:border-[#2ECC71]  text-gray-700"
             >
               <option value="">Select Type</option>
               {DOCUMENT_TYPES.map((d: any) => (
@@ -81,7 +81,8 @@ const PersonalDataStep: React.FC<Props> = ({ data, onChange }) => {
               type="text"
               value={data.documentNumber || ""}
               onChange={(e) => onChange({ documentNumber: e.target.value })}
-              className="w-full px-4 py-3 border-2 border-gray-300 rounded text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#2ECC71] focus:border-[#2ECC71]"
+              className="w-full px-4 py-3 border-2 border-gray-300 rounded text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#2ECC71] focus:border-[#2ECC71]  text-gray-700"
+              placeholder="12345678"
             />
           </div>
         </div>
@@ -96,7 +97,8 @@ const PersonalDataStep: React.FC<Props> = ({ data, onChange }) => {
               type="email"
               value={data.email || ""}
               onChange={(e) => onChange({ email: e.target.value })}
-              className="w-full px-4 py-3 border-2 border-gray-300 rounded text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#2ECC71] focus:border-[#2ECC71]"
+              className="w-full px-4 py-3 border-2 border-gray-300 rounded text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#2ECC71] focus:border-[#2ECC71]  text-gray-700"
+              placeholder="john.doe@example.com"
             />
           </div>
           <div>
@@ -107,7 +109,8 @@ const PersonalDataStep: React.FC<Props> = ({ data, onChange }) => {
               type="tel"
               value={data.phone || ""}
               onChange={(e) => onChange({ phone: e.target.value })}
-              className="w-full px-4 py-3 border-2 border-gray-300 rounded text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#2ECC71] focus:border-[#2ECC71]"
+              className="w-full px-4 py-3 border-2 border-gray-300 rounded text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#2ECC71] focus:border-[#2ECC71]  text-gray-700"
+              placeholder="+573200000000"
             />
           </div>
         </div>
