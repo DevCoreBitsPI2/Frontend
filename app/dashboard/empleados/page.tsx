@@ -49,7 +49,19 @@ export default function PaginaDirectorioEmpleados() {
               Consulta el personal activo y gestiona sus contratos.
             </p>
           </div>
+          <div className="flex items-center justify-end mb-6">
+            <Link
+              href="/dashboard/empleados/register"
+              className="inline-flex items-center gap-2 bg-[#0F1819] hover:bg-[#1E333A] text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors"
+            >
+              Crear Empleado
+            </Link>
+          </div>
         </div>
+
+        { /* Botón de creación de empleado */}
+
+
 
         {/* Buscador */}
         <div className="bg-white rounded-2xl border border-[#e8eef0] px-5 py-4 mb-6 flex items-center gap-3">

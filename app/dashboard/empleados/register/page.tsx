@@ -56,9 +56,6 @@ const Page = () => {
             <span className="text-[#203D47] font-semibold">Register Employee</span>
           </div>
           <div className="flex gap-3">
-            <button className="px-4 py-2 border border-gray-300 rounded text-sm text-[#203D47] hover:bg-gray-50 transition">
-              Save Draft
-            </button>
             <button
               onClick={next}
               className="px-4 py-2 bg-[#2ECC71] text-white rounded text-sm font-semibold hover:bg-green-600 transition"
@@ -111,7 +108,7 @@ const Page = () => {
 
           <div className="flex gap-3">
             <button
-              onClick={() => router.back()}
+              onClick={() => router.push('/dashboard/empleados')}
               className="px-6 py-2 border border-gray-300 rounded text-sm font-semibold text-[#203D47] hover:bg-gray-50 transition"
             >
               Cancel
