@@ -107,6 +107,28 @@ export const crearContrato = async (
   return nuevo;
 };
 
+export const obtenerContratoPorId = async (id: string): Promise<Contrato | null> => {
+  await new Promise((resolve) => setTimeout(resolve, 150));
+  return CONTRATOS_MOCK.find((c) => c.id === id) ?? null;
+};
+
+export interface ActualizarContratoDTO {
+  fechaFin: string | null;
+  salarioBase: number;
+  notas: string;
+}
+
+export const actualizarContrato = async (
+  id: string,
+  datos: ActualizarContratoDTO,
+): Promise<Contrato> => {
+  await new Promise((resolve) => setTimeout(resolve, 400));
+  const index = CONTRATOS_MOCK.findIndex((c) => c.id === id);
+  if (index === -1) throw new Error("Contrato no encontrado");
+  CONTRATOS_MOCK[index] = { ...CONTRATOS_MOCK[index], ...datos };
+  return CONTRATOS_MOCK[index];
+};
+
 export const eliminarContrato = async (id: string): Promise<void> => {
   await new Promise((resolve) => setTimeout(resolve, 250));
   const index = CONTRATOS_MOCK.findIndex((c) => c.id === id);
@@ -125,6 +147,7 @@ export const validarContrato = async (
   fechaInicio: string,
   fechaFin: string | null,
   salario: number,
+  excludeContratoId?: string,
 ): Promise<ResultadoValidacion> => {
   await new Promise((resolve) => setTimeout(resolve, 150));
 
@@ -135,7 +158,10 @@ export const validarContrato = async (
     !!fechaInicio && (fin ? fin.getTime() > inicio.getTime() : true);
 
   const contratosEmpleado = CONTRATOS_MOCK.filter(
-    (c) => c.idEmpleado === idEmpleado && c.estado === "ACTIVO",
+    (c) =>
+      c.idEmpleado === idEmpleado &&
+      c.estado === "ACTIVO" &&
+      c.id !== excludeContratoId,
   );
 
   const sinSolapamiento = !contratosEmpleado.some((c) => {
