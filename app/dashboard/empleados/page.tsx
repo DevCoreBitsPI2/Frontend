@@ -52,7 +52,7 @@ export default function PaginaDirectorioEmpleados() {
           <div className="flex items-center justify-end mb-6">
             <Link
               href="/dashboard/empleados/register"
-              className="inline-flex items-center gap-2 bg-[#0F1819] hover:bg-[#1E333A] text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors"
+              className="inline-flex items-center gap-2 bg-[#2ECC71] hover:opacity-90 text-white text-sm font-semibold px-4 py-2 rounded-lg transition-opacity"
             >
               Crear Empleado
             </Link>
@@ -129,10 +129,11 @@ export default function PaginaDirectorioEmpleados() {
                       </span>
                     </div>
 
+
                     <div className="mt-auto flex gap-2">
                       <Link
                         href={`/dashboard/empleados/${emp.id}/contratos`}
-                        className="flex-1 inline-flex items-center justify-center gap-2 bg-[#0F1819] hover:bg-[#1E333A] text-white text-xs font-semibold px-3.5 py-2.5 rounded-lg transition-colors"
+                        className="mt-auto inline-flex items-center justify-center gap-2 bg-[#2ECC71] hover:opacity-90 text-white text-xs font-semibold px-3.5 py-2.5 rounded-lg transition-opacity"
                       >
                         <FileText size={13} />
                         Ver Contratos
