@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { MapPin, Calendar, Edit3 } from 'lucide-react';
 
 import { UserProfile } from '@/types/funcionario';
+import { PerformanceMain, PerformanceSidebar } from './PerformanceTab';
 
 interface UserProfileCardProps {
   user: UserProfile;
@@ -11,7 +12,8 @@ interface UserProfileCardProps {
 }
 
 export default function UserProfileCard({ user, onEdit }: UserProfileCardProps) {
-  const [activeTab, setActiveTab] = useState<'trayectoria' | 'contratos' | 'desempeño'>('trayectoria');
+  const [activeTab, setActiveTab]     = useState<'trayectoria' | 'contratos' | 'desempeño'>('trayectoria');
+  const [statusActivo, setStatusActivo] = useState(user.estado === 'ACTIVO');
 
   return (
     <div className="min-h-screen bg-platinum-100">
@@ -53,13 +55,39 @@ export default function UserProfileCard({ user, onEdit }: UserProfileCardProps) 
               </div>
             </div>
 
-            <button
-              onClick={onEdit}
-              className="flex flex-shrink-0 items-center gap-2 rounded-xl bg-emerald-500 px-5 py-2 font-semibold text-white shadow-sm transition-colors hover:bg-emerald-400"
-            >
-              <Edit3 className="h-4 w-4" />
-              Editar Información
-            </button>
+            <div className="flex flex-col items-end gap-3 shrink-0">
+              {/* Status toggle */}
+              <div className="flex items-center gap-3">
+                <span className="text-xs font-medium text-platinum-600">Status</span>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setStatusActivo((v) => !v)}
+                    className={`relative w-10 h-5.5 rounded-full transition-colors duration-200 ${
+                      statusActivo ? 'bg-emerald-500' : 'bg-gray-300'
+                    }`}
+                  >
+                    <span
+                      className={`absolute top-0.75 left-0.75 w-4 h-4 bg-white rounded-full shadow-sm transition-transform duration-200 ${
+                        statusActivo ? 'translate-x-4.5' : 'translate-x-0'
+                      }`}
+                    />
+                  </button>
+                  <span className={`text-sm font-semibold ${statusActivo ? 'text-emerald-500' : 'text-gray-400'}`}>
+                    {statusActivo ? 'Active' : 'Inactive'}
+                  </span>
+                </div>
+              </div>
+
+              {/* Edit button */}
+              <button
+                onClick={onEdit}
+                className="flex items-center gap-2 rounded-xl bg-emerald-500 px-5 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-emerald-400"
+              >
+                <Edit3 className="h-4 w-4" />
+                Editar Información
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -144,91 +172,92 @@ export default function UserProfileCard({ user, onEdit }: UserProfileCardProps) 
               </div>
             )}
 
-            {activeTab === 'desempeño' && (
-              <div className="rounded-xl bg-white p-8 shadow-sm">
-                <h2 className="mb-6 text-lg font-bold text-jet-black-900">Performance Evaluations</h2>
-                <p className="py-12 text-center text-platinum-700">No performance evaluations available at this time.</p>
-              </div>
-            )}
+            {activeTab === 'desempeño' && <PerformanceMain />}
           </div>
 
           <div className="space-y-6">
-            <div className="rounded-xl bg-white p-6 shadow-sm">
-              <div className="mb-6 flex items-center gap-2 border-b border-platinum-200 pb-4">
-                <span className="text-lg">📋</span>
-                <h3 className="font-bold text-jet-black-900">Personal Info</h3>
-              </div>
-              <div className="space-y-5 text-sm">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <p className="mb-2 text-xs font-bold uppercase tracking-wider text-platinum-600">Email</p>
-                    <p className="break-words text-xs font-medium text-jet-black-800">{user.email}</p>
-                  </div>
-                  <div>
-                    <p className="mb-2 text-xs font-bold uppercase tracking-wider text-platinum-600">Phone Number</p>
-                    <p className="text-xs font-medium text-jet-black-800">{user.phone}</p>
-                  </div>
-                </div>
+            {activeTab === 'desempeño' && <PerformanceSidebar />}
 
-                <div className="grid grid-cols-2 gap-4 pt-2">
-                  <div>
-                    <p className="mb-2 text-xs font-bold uppercase tracking-wider text-platinum-600">Job Role</p>
-                    <p className="text-xs font-medium text-jet-black-800">{user.cargo}</p>
+            {activeTab !== 'desempeño' && (
+              <>
+                <div className="rounded-xl bg-white p-6 shadow-sm">
+                  <div className="mb-6 flex items-center gap-2 border-b border-platinum-200 pb-4">
+                    <span className="text-lg">📋</span>
+                    <h3 className="font-bold text-jet-black-900">Personal Info</h3>
                   </div>
-                  <div>
-                    <p className="mb-2 text-xs font-bold uppercase tracking-wider text-platinum-600">Department</p>
-                    <p className="text-xs font-medium text-jet-black-800">{user.area}</p>
-                  </div>
-                </div>
+                  <div className="space-y-5 text-sm">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <p className="mb-2 text-xs font-bold uppercase tracking-wider text-platinum-600">Email</p>
+                        <p className="break-words text-xs font-medium text-jet-black-800">{user.email}</p>
+                      </div>
+                      <div>
+                        <p className="mb-2 text-xs font-bold uppercase tracking-wider text-platinum-600">Phone Number</p>
+                        <p className="text-xs font-medium text-jet-black-800">{user.phone}</p>
+                      </div>
+                    </div>
 
-                <div className="grid grid-cols-2 gap-4 pt-2">
-                  <div>
-                    <p className="mb-2 text-xs font-bold uppercase tracking-wider text-platinum-600">Birth Date</p>
-                    <p className="text-xs font-medium text-jet-black-800">
-                      {new Date(user.fechaNacimiento).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' })}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="mb-2 text-xs font-bold uppercase tracking-wider text-platinum-600">Office Location</p>
-                    <p className="text-xs font-medium text-jet-black-800">{user.oficina}</p>
-                  </div>
-                </div>
+                    <div className="grid grid-cols-2 gap-4 pt-2">
+                      <div>
+                        <p className="mb-2 text-xs font-bold uppercase tracking-wider text-platinum-600">Job Role</p>
+                        <p className="text-xs font-medium text-jet-black-800">{user.cargo}</p>
+                      </div>
+                      <div>
+                        <p className="mb-2 text-xs font-bold uppercase tracking-wider text-platinum-600">Department</p>
+                        <p className="text-xs font-medium text-jet-black-800">{user.area}</p>
+                      </div>
+                    </div>
 
-                <div className="border-t border-platinum-200 pt-2">
-                  <p className="mb-2 text-xs font-bold uppercase tracking-wider text-platinum-600">Reports To</p>
-                  <p className="text-xs font-medium text-jet-black-800">{user.reportaA}</p>
-                </div>
-              </div>
-            </div>
+                    <div className="grid grid-cols-2 gap-4 pt-2">
+                      <div>
+                        <p className="mb-2 text-xs font-bold uppercase tracking-wider text-platinum-600">Birth Date</p>
+                        <p className="text-xs font-medium text-jet-black-800">
+                          {new Date(user.fechaNacimiento).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' })}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="mb-2 text-xs font-bold uppercase tracking-wider text-platinum-600">Office Location</p>
+                        <p className="text-xs font-medium text-jet-black-800">{user.oficina}</p>
+                      </div>
+                    </div>
 
-            <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-jet-black-800 via-charcoal-blue-800 to-jet-black-900 p-6 text-white shadow-lg">
-              <div className="absolute -right-10 -top-10 h-20 w-20 rounded-full bg-white/5" />
-              <div className="absolute -bottom-8 -left-8 h-16 w-16 rounded-full bg-white/5" />
-
-              <div className="relative z-10">
-                <div className="mb-6 text-right">
-                  <span className="text-xs font-semibold tracking-wider opacity-60">EMPLOYEE DIGITAL PASS</span>
-                </div>
-
-                <div className="mb-6 flex h-32 items-center justify-center rounded-lg bg-white p-4 shadow-lg">
-                  <div className="flex h-28 w-28 items-center justify-center rounded bg-platinum-200">
-                    <div className="grid grid-cols-3 gap-1 p-3">
-                      {[...Array(9)].map((_, i) => (
-                        <div
-                          key={i}
-                          className={`h-2 w-2 rounded-sm ${[0, 2, 4, 6, 8].includes(i) ? 'bg-jet-black-900' : 'bg-platinum-400'}`}
-                        />
-                      ))}
+                    <div className="border-t border-platinum-200 pt-2">
+                      <p className="mb-2 text-xs font-bold uppercase tracking-wider text-platinum-600">Reports To</p>
+                      <p className="text-xs font-medium text-jet-black-800">{user.reportaA}</p>
                     </div>
                   </div>
                 </div>
 
-                <div className="border-t border-white/20 pt-4 text-center">
-                  <p className="text-base font-bold uppercase tracking-wide">{user.nombre} {user.apellidos}</p>
-                  <p className="mt-2 text-xs font-medium opacity-60">ID {user.idFuncionario}</p>
+                <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-jet-black-800 via-charcoal-blue-800 to-jet-black-900 p-6 text-white shadow-lg">
+                  <div className="absolute -right-10 -top-10 h-20 w-20 rounded-full bg-white/5" />
+                  <div className="absolute -bottom-8 -left-8 h-16 w-16 rounded-full bg-white/5" />
+
+                  <div className="relative z-10">
+                    <div className="mb-6 text-right">
+                      <span className="text-xs font-semibold tracking-wider opacity-60">EMPLOYEE DIGITAL PASS</span>
+                    </div>
+
+                    <div className="mb-6 flex h-32 items-center justify-center rounded-lg bg-white p-4 shadow-lg">
+                      <div className="flex h-28 w-28 items-center justify-center rounded bg-platinum-200">
+                        <div className="grid grid-cols-3 gap-1 p-3">
+                          {[...Array(9)].map((_, i) => (
+                            <div
+                              key={i}
+                              className={`h-2 w-2 rounded-sm ${[0, 2, 4, 6, 8].includes(i) ? 'bg-jet-black-900' : 'bg-platinum-400'}`}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="border-t border-white/20 pt-4 text-center">
+                      <p className="text-base font-bold uppercase tracking-wide">{user.nombre} {user.apellidos}</p>
+                      <p className="mt-2 text-xs font-medium opacity-60">ID {user.idFuncionario}</p>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
+              </>
+            )}
           </div>
         </div>
       </div>

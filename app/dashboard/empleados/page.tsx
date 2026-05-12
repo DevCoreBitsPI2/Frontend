@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { ChevronRight, Search, FileText, MapPin } from "lucide-react";
+import { ChevronRight, Search, FileText, MapPin, ClipboardList } from "lucide-react";
 import { Empleado, obtenerEmpleados } from "@/services/empleadosService";
 
 export default function PaginaDirectorioEmpleados() {
@@ -129,13 +129,22 @@ export default function PaginaDirectorioEmpleados() {
                       </span>
                     </div>
 
-                    <Link
-                      href={`/dashboard/empleados/${emp.id}/contratos`}
-                      className="mt-auto inline-flex items-center justify-center gap-2 bg-[#0F1819] hover:bg-[#1E333A] text-white text-xs font-semibold px-3.5 py-2.5 rounded-lg transition-colors"
-                    >
-                      <FileText size={13} />
-                      Ver Contratos
-                    </Link>
+                    <div className="mt-auto flex gap-2">
+                      <Link
+                        href={`/dashboard/empleados/${emp.id}/contratos`}
+                        className="flex-1 inline-flex items-center justify-center gap-2 bg-[#0F1819] hover:bg-[#1E333A] text-white text-xs font-semibold px-3.5 py-2.5 rounded-lg transition-colors"
+                      >
+                        <FileText size={13} />
+                        Ver Contratos
+                      </Link>
+                      <Link
+                        href={`/dashboard/empleados/${emp.id}/evaluacion`}
+                        className="flex-1 inline-flex items-center justify-center gap-2 border border-[#d1dde2] hover:bg-[#f0f4f5] text-[#203D47] text-xs font-semibold px-3.5 py-2.5 rounded-lg transition-colors"
+                      >
+                        <ClipboardList size={13} />
+                        Evaluar
+                      </Link>
+                    </div>
                   </article>
                 );
               })
