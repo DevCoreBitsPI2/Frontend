@@ -21,22 +21,22 @@ export default function ContractToast({
 
   return (
     <div
-      className="fixed top-6 right-6 z-50 flex items-center gap-3 bg-white rounded-xl shadow-lg border border-[#e8eef0] pl-3.5 pr-2.5 py-3 min-w-[260px]"
-      style={{ animation: "fadeDown 0.25s ease-out" }}
+      className="fixed top-5 right-5 z-[9999] flex items-center gap-3 bg-white rounded-2xl shadow-[0_8px_32px_rgba(15,24,25,0.14)] border border-[#e8eef0] pl-4 pr-3 py-3.5 min-w-[280px]"
+      style={{ animation: "toastIn 0.28s cubic-bezier(0.16,1,0.3,1)" }}
     >
       <style>{`
-        @keyframes fadeDown {
-          from { opacity: 0; transform: translateY(-12px); }
-          to { opacity: 1; transform: translateY(0); }
+        @keyframes toastIn {
+          from { opacity: 0; transform: translateY(-14px) scale(0.97); }
+          to   { opacity: 1; transform: translateY(0)    scale(1);    }
         }
       `}</style>
-      <div className="w-7 h-7 rounded-full bg-emerald-50 flex items-center justify-center shrink-0">
-        <CheckCircle2 size={16} className="text-emerald-500" />
+      <div className="w-8 h-8 rounded-full bg-[#2ECC71] flex items-center justify-center shrink-0 shadow-sm">
+        <CheckCircle2 size={16} className="text-white" strokeWidth={2.5} />
       </div>
-      <span className="text-sm font-semibold text-[#0F1819] flex-1">{mensaje}</span>
+      <span className="text-sm font-semibold text-[#0F1819] flex-1 leading-snug">{mensaje}</span>
       <button
         onClick={onCerrar}
-        className="p-1 text-[#8aa3ad] hover:text-[#0F1819] rounded-md transition-colors"
+        className="p-1 text-[#c5d5db] hover:text-[#0F1819] rounded-md transition-colors"
       >
         <X size={14} />
       </button>
