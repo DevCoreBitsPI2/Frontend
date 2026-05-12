@@ -23,9 +23,11 @@ export default function PaginaContratosEmpleado() {
 
   // El toast se inicializa en el primer render leyendo la query string,
   // y un efecto separado limpia la URL (sin re-renders en cascada).
-  const [toast, setToast] = useState<string | null>(() =>
-    searchParams.get("creado") === "1" ? "Contract created successfully." : null,
-  );
+  const [toast, setToast] = useState<string | null>(() => {
+    if (searchParams.get("creado") === "1") return "Contract created successfully.";
+    if (searchParams.get("actualizado") === "1") return "Contract updated successfully.";
+    return null;
+  });
 
   const filtroEstado = searchParams.get("estado") ?? "ALL";
 
@@ -47,9 +49,10 @@ export default function PaginaContratosEmpleado() {
   }, [empleadoId]);
 
   useEffect(() => {
-    if (searchParams.get("creado") === "1") {
+    if (searchParams.get("creado") === "1" || searchParams.get("actualizado") === "1") {
       const url = new URL(window.location.href);
       url.searchParams.delete("creado");
+      url.searchParams.delete("actualizado");
       router.replace(url.pathname + (url.search || ""));
     }
   }, [searchParams, router]);
