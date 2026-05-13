@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState } from "react";
+import { AlertTriangle, AlertCircle } from "lucide-react";
 import { eliminarPosicion } from "@/services/positionsService";
 
 interface DeletePositionModalProps {
@@ -18,77 +19,66 @@ export default function DeletePositionModal({
   onClose,
   onSuccess,
 }: DeletePositionModalProps) {
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [eliminando, setEliminando] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleDelete = async () => {
-    setError("");
-    setLoading(true);
+  if (!isOpen || !positionId) return null;
 
+  const manejarEliminar = async () => {
+    setEliminando(true);
+    setError(null);
     try {
-      if (!positionId) throw new Error("No position selected");
-
       await eliminarPosicion(positionId);
       onSuccess?.();
       onClose();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Error deleting position");
+      setError(err instanceof Error ? err.message : "Error al eliminar la posición");
     } finally {
-      setLoading(false);
+      setEliminando(false);
     }
   };
 
-  if (!isOpen || !positionId) return null;
-
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded shadow-xl p-8 max-w-md w-full mx-4">
-        <div className="flex items-center justify-center w-12 h-12 mx-auto bg-red-100 rounded-full mb-4">
-          <svg
-            className="w-6 h-6 text-red-600"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-            />
-          </svg>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+      <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm mx-4 p-6 flex flex-col gap-4">
+        {/* Icono y titulo */}
+        <div className="flex items-start gap-3">
+          <div className="w-9 h-9 rounded-full bg-amber-100 flex items-center justify-center shrink-0">
+            <AlertTriangle size={18} className="text-amber-500" />
+          </div>
+          <div>
+            <h2 className="text-base font-semibold text-[#0F1819]">Eliminar esta posición?</h2>
+            <p className="text-sm text-[#8aa3ad] mt-1 leading-relaxed">
+              Esta seguro que quiere eliminar la posición{" "}
+              <span className="font-semibold text-[#0F1819]">{positionName}</span>?
+              Esta accion no se puede deshacer.
+            </p>
+          </div>
         </div>
 
-        <h2 className="text-2xl font-bold text-[#0F1819] mb-2 text-center">
-          Delete Position
-        </h2>
-        <p className="text-[#8aa3ad] text-center mb-6">
-          Are you sure you want to delete <span className="font-semibold">{positionName}</span>?
-          This action cannot be undone.
-        </p>
-
+        {/* Advertencia de empleados enlazados */}
         {error && (
-          <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded text-red-600 text-sm">
-            {error}
+          <div className="flex items-start gap-2.5 bg-rose-50 border border-rose-200 rounded-xl px-4 py-3">
+            <AlertCircle size={15} className="text-rose-500 shrink-0 mt-0.5" />
+            <p className="text-sm text-rose-600">{error}</p>
           </div>
         )}
 
-        <div className="flex gap-3">
+        {/* Botones */}
+        <div className="flex items-center justify-end gap-3 pt-1">
           <button
-            type="button"
             onClick={onClose}
-            disabled={loading}
-            className="flex-1 px-4 py-2 border border-[#BDD5EA] text-[#203D47] rounded font-medium hover:bg-[#ECEFF1] disabled:opacity-50 transition-colors text-sm"
+            disabled={eliminando}
+            className="px-4 py-2 text-sm text-[#8aa3ad] hover:text-[#0F1819] border border-[#d1dde2] rounded-lg transition-colors disabled:opacity-60"
           >
-            Cancel
+            Cancelar
           </button>
           <button
-            type="button"
-            onClick={handleDelete}
-            disabled={loading}
-            className="flex-1 px-4 py-2 bg-red-600 text-white rounded font-semibold hover:bg-red-700 disabled:opacity-50 transition-colors text-sm"
+            onClick={manejarEliminar}
+            disabled={eliminando}
+            className="px-4 py-2 text-sm font-semibold text-white bg-rose-500 hover:bg-rose-400 rounded-lg transition-colors disabled:opacity-60"
           >
-            {loading ? "Deleting..." : "Delete"}
+            {eliminando ? "Eliminando..." : "Eliminar Posición"}
           </button>
         </div>
       </div>

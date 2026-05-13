@@ -1,90 +1,96 @@
 "use client";
 
-import { useState } from "react";
+import React from "react";
 import { Position } from "@/services/positionsService";
+import { Eye, Pencil, Trash2 } from "lucide-react";
 
 interface PositionRowProps {
   position: Position;
+  onView?: (position: Position) => void;
   onEdit?: (position: Position) => void;
   onDelete?: (position: Position) => void;
 }
 
-export default function PositionRow({
-  position,
-  onEdit,
-  onDelete,
-}: PositionRowProps) {
-  const [showMenu, setShowMenu] = useState(false);
+const BADGE_ESTADO: Record<string, string> = {
+  Active: "bg-emerald-100 text-emerald-700",
+  Inactive: "bg-slate-100 text-slate-500",
+};
 
-  const statusColor =
-    position.estado === "Active"
-      ? "bg-[#2ECC71] text-white"
-      : "bg-[#FCD34D] text-[#0F1819]";
+const ETIQUETA_ESTADO: Record<string, string> = {
+  Active: "Activo",
+  Inactive: "Inactivo",
+};
 
+export default function PositionRow({ position, onView, onEdit, onDelete }: PositionRowProps) {
   return (
-    <tr className="border-b border-[#BDD5EA] hover:bg-[#F9F9F9] transition-colors">
-      <td className="px-6 py-4">
-        <div>
-          <p className="text-[#0F1819] font-semibold text-sm">{position.nombre}</p>
-          <p className="text-[#8aa3ad] text-xs mt-1">{position.id}</p>
+    <tr className="border-b border-[#f0f4f5] hover:bg-[#f8fafb] transition-colors">
+      {/* Nombre de la posición */}
+      <td className="px-5 py-3.5">
+        <div className="flex items-center gap-3">
+          <div className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0 bg-blue-100">
+            <span className="text-sm font-semibold text-blue-600">
+              {position.nombre.charAt(0).toUpperCase()}
+            </span>
+          </div>
+          <div>
+            <span className="text-sm font-medium text-[#0F1819]">{position.nombre}</span>
+            <p className="text-xs text-[#8aa3ad] mt-0.5">{position.id}</p>
+          </div>
         </div>
       </td>
-      <td className="px-6 py-4">
-        <div className="flex gap-2 items-center">
-          {position.empleados.slice(0, 3).map((emp) => (
-            <div
-              key={emp.id}
-              className="w-8 h-8 rounded-full bg-[#203D47] flex items-center justify-center text-xs font-semibold text-[#ECEFF1] hover:bg-[#0F1819] transition-colors"
-              title={emp.nombre}
-            >
-              {emp.iniciales}
-            </div>
-          ))}
-          {position.empleados.length > 3 && (
-            <span className="text-[#8aa3ad] text-xs font-semibold">+{position.empleados.length - 3}</span>
-          )}
-          {position.empleados.length === 0 && (
-            <span className="text-[#8aa3ad] text-xs">None</span>
-          )}
-        </div>
-      </td>
-      <td className="px-6 py-4 text-[#203D47] text-sm">
-        <span className="hover:text-[#0F1819] transition-colors">{position.posicionSuperior || "—"}</span>
-      </td>
-      <td className="px-6 py-4">
-        <span className={`px-2.5 py-1 rounded text-xs font-semibold ${statusColor}`}>
-          {position.estado}
+
+      {/* Empleados */}
+      <td className="px-5 py-3.5">
+        <span className="text-sm text-[#0F1819] font-medium">
+          {position.empleados ? position.empleados.length : 0}
         </span>
       </td>
-      <td className="px-6 py-4 relative">
-        <button
-          onClick={() => setShowMenu(!showMenu)}
-          className="text-[#8aa3ad] hover:text-[#203D47] p-1 hover:bg-[#ECEFF1] rounded transition-colors"
-        >
-          ⋮
-        </button>
-        {showMenu && (
-          <div className="absolute right-0 mt-2 w-40 bg-white border border-[#BDD5EA] rounded shadow-md z-50 py-1">
+
+      {/* Posición Superior */}
+      <td className="px-5 py-3.5">
+        <span className="text-sm text-[#8aa3ad] truncate max-w-[200px] block">
+          {position.posicionSuperior || "—"}
+        </span>
+      </td>
+
+      {/* Estado */}
+      <td className="px-5 py-3.5">
+        <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${BADGE_ESTADO[position.estado] || BADGE_ESTADO.Inactive}`}>
+          {ETIQUETA_ESTADO[position.estado] || position.estado}
+        </span>
+      </td>
+
+      {/* Acciones */}
+      <td className="px-5 py-3.5">
+        <div className="flex items-center gap-2">
+          {onView && (
             <button
-              onClick={() => {
-                onEdit?.(position);
-                setShowMenu(false);
-              }}
-              className="block w-full text-left px-4 py-2 text-[#203D47] hover:bg-[#ECEFF1] text-sm"
+              onClick={() => onView(position)}
+              title="Ver detalles"
+              className="p-1.5 text-[#8aa3ad] hover:text-[#203D47] hover:bg-[#ECEFF1] rounded-lg transition-colors"
             >
-              Edit
+              <Eye size={15} />
             </button>
+          )}
+          {onEdit && (
             <button
-              onClick={() => {
-                onDelete?.(position);
-                setShowMenu(false);
-              }}
-              className="block w-full text-left px-4 py-2 text-red-600 hover:bg-[#ECEFF1] text-sm"
+              onClick={() => onEdit(position)}
+              title="Editar posición"
+              className="p-1.5 text-[#8aa3ad] hover:text-[#203D47] hover:bg-[#ECEFF1] rounded-lg transition-colors"
             >
-              Delete
+              <Pencil size={15} />
             </button>
-          </div>
-        )}
+          )}
+          {onDelete && (
+            <button
+              onClick={() => onDelete(position)}
+              title="Eliminar posición"
+              className="p-1.5 text-[#8aa3ad] hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-colors"
+            >
+              <Trash2 size={15} />
+            </button>
+          )}
+        </div>
       </td>
     </tr>
   );
