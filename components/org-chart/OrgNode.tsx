@@ -1,87 +1,187 @@
 "use client";
 
-import React from "react";
-import { NodoOrg, CONFIG_ESTADO, COLORES_NIVEL } from "@/types/orgChart";
+import { useState, useRef, useEffect } from "react";
+import { Position } from "@/types/orgChart";
+import { Crown, User, Cloud, Code2, Shield, GripVertical } from "lucide-react";
 
-interface OrgNodeProps {
-  nodo: NodoOrg & { hijos?: any[] };
-  estaSeleccionado: boolean;
-  alHacerClic: (nodo: NodoOrg) => void;
-  esRaiz?: boolean;
+const ICON_MAP = { crown: Crown, person: User, cloud: Cloud, code: Code2, shield: Shield };
+const ICON_BG: Record<string, string> = {
+  person: "bg-teal-100 text-teal-600",
+  cloud:  "bg-blue-100 text-blue-600",
+  code:   "bg-violet-100 text-violet-600",
+  shield: "bg-rose-100 text-rose-600",
+  crown:  "bg-amber-100 text-amber-600",
+};
+
+// Context menu shown on non-root nodes via the grip handle
+function ContextMenu({
+  position,
+  onEdit,
+  onDetach,
+}: {
+  position: Position;
+  onEdit?: (p: Position) => void;
+  onDetach?: (p: Position) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [open]);
+
+  return (
+    <div
+      ref={ref}
+      className="relative"
+      onClick={(e) => e.stopPropagation()}
+    >
+      <button
+        onClick={() => setOpen((v) => !v)}
+        title="Options"
+        className="p-1 text-[#c5d5db] hover:text-[#8aa3ad] rounded transition-colors"
+      >
+        <GripVertical size={14} />
+      </button>
+
+      {open && (
+        <div className="absolute right-0 top-7 z-50 bg-white rounded-xl shadow-lg border border-[#d1dde2] overflow-hidden min-w-[110px]">
+          <button
+            onClick={() => { setOpen(false); onEdit?.(position); }}
+            className="w-full text-left px-4 py-2.5 text-sm font-bold text-[#0F1819] hover:bg-[#f4f7f8] transition-colors"
+          >
+            Edit
+          </button>
+          <div className="px-2 pb-2 pt-0.5">
+            <button
+              onClick={() => { setOpen(false); onDetach?.(position); }}
+              className="w-full py-2 text-sm font-bold bg-rose-500 hover:bg-rose-400 text-white rounded-lg transition-colors"
+            >
+              detach
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
 }
 
-export default function OrgNode({ nodo, estaSeleccionado, alHacerClic, esRaiz = false }: OrgNodeProps) {
-  const estado = CONFIG_ESTADO[nodo.estado] ?? CONFIG_ESTADO.ESTABLE;
-  const colorNivel = COLORES_NIVEL[nodo.nivel] ?? "text-slate-400";
+interface OrgNodeProps {
+  position: Position;
+  isSelected: boolean;
+  onClick: (pos: Position) => void;
+  isRoot?: boolean;
+  isLeaf?: boolean;
+  onEdit?: (pos: Position) => void;
+  onDetach?: (pos: Position) => void;
+}
 
-  if (esRaiz) {
+export default function OrgNode({
+  position,
+  isSelected,
+  onClick,
+  isRoot = false,
+  isLeaf = false,
+  onEdit,
+  onDetach,
+}: OrgNodeProps) {
+  const Icon = ICON_MAP[position.iconType] ?? User;
+
+  /* ── ROOT NODE — no context menu ── */
+  if (isRoot) {
     return (
       <button
-        onClick={() => alHacerClic(nodo)}
-        className={`relative flex flex-col items-center justify-center rounded-xl px-8 py-4 min-w-[220px] cursor-pointer transition-all duration-200 select-none ${
-          estaSeleccionado
-            ? "bg-[#1E333A] ring-2 ring-emerald-400 shadow-[0_0_20px_rgba(52,211,153,0.25)]"
-            : "bg-[#0F1819] hover:bg-[#1E333A] ring-1 ring-[#203D47]"
+        onClick={() => onClick(position)}
+        className={`relative flex flex-col rounded-2xl px-5 py-4 min-w-[220px] cursor-pointer transition-all duration-200 select-none text-left ${
+          isSelected
+            ? "bg-[#1E333A] ring-2 ring-emerald-400 shadow-[0_0_20px_rgba(52,211,153,0.2)]"
+            : "bg-[#0F1819] hover:bg-[#1A2E35] ring-1 ring-[#203D47]"
         }`}
       >
-        <span className={`text-[10px] font-bold tracking-[0.2em] mb-1 ${colorNivel}`}>
-          {nodo.nivel}
+        <div className="flex items-center justify-between mb-3">
+          <div className="w-8 h-8 rounded-lg bg-amber-400/20 flex items-center justify-center">
+            <Crown size={16} className="text-amber-400" />
+          </div>
+          <GripVertical size={15} className="text-[#3d6370]" />
+        </div>
+        <span className="text-white font-bold text-base leading-tight">{position.name}</span>
+        <span className="text-[#8aa3ad] text-[11px] font-semibold tracking-widest uppercase mt-0.5">
+          {position.department}
         </span>
-        <span className="text-white font-semibold text-base leading-tight text-center">
-          {nodo.nombre}
-        </span>
-        <div className="flex items-center gap-1.5 mt-2">
-          <span className="text-[#BDD5EA] text-xs">{nodo.cantidadMiembros} Miembros</span>
-          <span className={`w-1.5 h-1.5 rounded-full ${estado.colorPunto}`} />
+        <div className="flex items-center gap-2 mt-3 flex-wrap">
+          <span className="bg-emerald-500/20 text-emerald-400 text-[10px] font-semibold px-2.5 py-1 rounded-full whitespace-nowrap">
+            {position.employeeCount} Direct Reports
+          </span>
+          <span className="bg-emerald-500/20 text-emerald-400 text-[10px] font-semibold px-2.5 py-1 rounded-full">
+            {position.status}
+          </span>
         </div>
       </button>
     );
   }
 
-  return (
-    <button
-      onClick={() => alHacerClic(nodo)}
-      className={`relative flex flex-col rounded-xl p-3.5 min-w-[170px] max-w-[190px] w-full cursor-pointer transition-all duration-200 select-none text-left ${
-        estaSeleccionado
-          ? `bg-[#1E333A] ring-2 ${estado.colorBorde} shadow-lg`
-          : "bg-white hover:bg-[#f4f7f8] ring-1 ring-[#d1dde2]"
-      }`}
-    >
-      <div className="flex items-center justify-between mb-2">
-        <span className={`text-[9px] font-bold tracking-widest uppercase ${estaSeleccionado ? colorNivel : "text-slate-400"}`}>
-          {nodo.nivel}
-        </span>
-        <span className={`text-[9px] font-semibold tracking-wider ${estado.colorTexto}`}>
-          {estado.etiqueta}
-        </span>
-      </div>
-
-      <span className={`text-sm font-semibold leading-snug mb-2 ${estaSeleccionado ? "text-white" : "text-[#0F1819]"}`}>
-        {nodo.nombre}
-      </span>
-
-      <div className="flex items-center gap-1.5">
-        <div className="flex -space-x-1.5">
-          {nodo.avatares.slice(0, 3).map((av, i) => (
-            <div key={i} className="w-5 h-5 rounded-full flex items-center justify-center text-[8px] font-bold border border-white bg-[#203D47] text-[#BDD5EA]">
-              {av}
-            </div>
-          ))}
+  /* ── LEAF NODE ── */
+  if (isLeaf) {
+    return (
+      // Wrapper div so we can place ContextMenu outside the clickable area
+      <div className="relative inline-block" data-nodecard>
+        <button
+          onClick={() => onClick(position)}
+          className={`flex flex-col rounded-xl px-4 py-3 min-w-[155px] cursor-pointer transition-all duration-200 select-none text-left pr-9 ${
+            isSelected
+              ? "bg-white ring-2 ring-emerald-500 shadow-md"
+              : "bg-white ring-1 ring-[#d1dde2] hover:ring-[#b0c4cc] hover:shadow-sm"
+          }`}
+        >
+          <span className="text-sm font-semibold text-[#0F1819] leading-tight">{position.name}</span>
+          <span className="text-[11px] text-[#8aa3ad] mt-0.5">
+            {position.department} • {position.employeeCount} Count
+          </span>
+        </button>
+        <div className="absolute top-2 right-1.5">
+          <ContextMenu position={position} onEdit={onEdit} onDetach={onDetach} />
         </div>
-        <span className={`text-[10px] ${estaSeleccionado ? "text-[#BDD5EA]" : "text-slate-400"}`}>
-          {nodo.cantidadMiembros > 3 ? `+${nodo.cantidadMiembros - 3}` : `${nodo.cantidadMiembros}`}
-        </span>
       </div>
+    );
+  }
 
-      {nodo.estado === "ALTA_ROTACION" && (
-        <span className="mt-2 text-[9px] text-rose-400 font-semibold">{nodo.vacantes} Alta Rotacion</span>
-      )}
-      {nodo.estado === "NECESIDADES_CRITICAS" && (
-        <span className="mt-2 text-[9px] text-amber-400 font-semibold">Necesidades Criticas</span>
-      )}
-      {nodo.estado === "ACTIVO" && nodo.vacantes > 0 && (
-        <span className="mt-2 text-[9px] text-slate-400">{nodo.vacantes} Puestos Abiertos</span>
-      )}
-    </button>
+  /* ── BRANCH NODE ── */
+  const iconColors = ICON_BG[position.iconType] ?? ICON_BG.person;
+
+  return (
+    <div className="relative inline-block" data-nodecard>
+      <button
+        onClick={() => onClick(position)}
+        className={`relative flex flex-col rounded-xl p-4 min-w-[190px] cursor-pointer transition-all duration-200 select-none text-left pr-10 ${
+          isSelected
+            ? "bg-white ring-2 ring-emerald-500 shadow-md"
+            : "bg-white ring-1 ring-[#d1dde2] hover:ring-[#b0c4cc] hover:shadow-sm"
+        }`}
+      >
+        <div className="flex items-center justify-between mb-3">
+          <div className={`w-8 h-8 rounded-full flex items-center justify-center ${iconColors}`}>
+            <Icon size={15} />
+          </div>
+          {/* Spacer for grip area */}
+          <div className="w-5 h-5" />
+        </div>
+        <span className="text-[#0F1819] font-semibold text-sm leading-tight">{position.name}</span>
+        <span className="text-[9px] font-semibold tracking-widest uppercase text-[#8aa3ad] mt-1">
+          REPORTS TO:{" "}
+          {position.superiorName
+            ? position.superiorName.toUpperCase().replace("DEPARTMENT ", "DEPT. ")
+            : "—"}
+        </span>
+        <span className="text-[11px] text-[#8aa3ad] mt-2">{position.employeeCount} Employees</span>
+      </button>
+      <div className="absolute top-3 right-2.5">
+        <ContextMenu position={position} onEdit={onEdit} onDetach={onDetach} />
+      </div>
+    </div>
   );
 }

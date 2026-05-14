@@ -102,7 +102,7 @@ export default function NewAreaModal({ onCerrar, onCreada }: NewAreaModalProps) 
           <button
             onClick={manejarGuardar}
             disabled={guardando}
-            className="px-4 py-2 text-sm font-semibold text-white bg-[#0F1819] hover:bg-[#1E333A] rounded-lg transition-colors disabled:opacity-60"
+            className="px-4 py-2 text-sm font-semibold text-white bg-[#2ECC71] hover:opacity-90 rounded-lg transition-opacity disabled:opacity-60"
           >
             {guardando ? "Guardando..." : "Guardar Area"}
           </button>

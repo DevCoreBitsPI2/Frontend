@@ -1,91 +1,120 @@
 "use client";
 
-// components/org-chart/OrgTree.tsx
-
-import React, { useRef, useState, useCallback } from "react";
-import { NodoOrg, NodoArbol } from "@/types/orgChart";
+import { useRef, useState, useCallback } from "react";
+import { Position, PositionTree } from "@/types/orgChart";
 import OrgNode from "./OrgNode";
-import { ZoomIn, ZoomOut, Maximize2, Download } from "lucide-react";
+import { ZoomIn, ZoomOut, Maximize2, Plus } from "lucide-react";
+
+const LINE = "#94a3b8";
 
 interface OrgTreeProps {
-  arbol: NodoArbol;
-  idSeleccionado: string | null;
-  alSeleccionar: (nodo: NodoOrg) => void;
+  tree: PositionTree;
+  selectedId: string | null;
+  onSelect: (pos: Position) => void;
+  onAddChild?: (parent: Position) => void;
+  onEdit?: (pos: Position) => void;
+  onDetach?: (pos: Position) => void;
+  scale: number;
+  onZoomIn: () => void;
+  onZoomOut: () => void;
+  onReset: () => void;
 }
 
-const COLOR_LINEA = "#203D47";
-
-function NodoConHijos({
-  nodo,
-  idSeleccionado,
-  alSeleccionar,
-  esRaiz = false,
+function NodeWithChildren({
+  node,
+  selectedId,
+  onSelect,
+  onAddChild,
+  onEdit,
+  onDetach,
+  isRoot = false,
 }: {
-  nodo: NodoArbol;
-  idSeleccionado: string | null;
-  alSeleccionar: (nodo: NodoOrg) => void;
-  esRaiz?: boolean;
+  node: PositionTree;
+  selectedId: string | null;
+  onSelect: (pos: Position) => void;
+  onAddChild?: (parent: Position) => void;
+  onEdit?: (pos: Position) => void;
+  onDetach?: (pos: Position) => void;
+  isRoot?: boolean;
 }) {
-  const tieneHijos = nodo.hijos && nodo.hijos.length > 0;
-  const hijoUnico = nodo.hijos?.length === 1;
+  const hasChildren = node.children.length > 0;
+  const isLeaf = !hasChildren && !isRoot;
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+    <div className="flex flex-col items-center">
       <OrgNode
-        nodo={nodo}
-        estaSeleccionado={idSeleccionado === nodo.id}
-        alHacerClic={alSeleccionar}
-        esRaiz={esRaiz}
+        position={node}
+        isSelected={selectedId === node.id}
+        onClick={onSelect}
+        isRoot={isRoot}
+        isLeaf={isLeaf}
+        onEdit={onEdit}
+        onDetach={onDetach}
       />
 
-      {tieneHijos && (
+      {hasChildren && (
         <>
-          {/* Línea vertical desde el padre hacia abajo */}
-          <div style={{ width: 1, height: 32, background: COLOR_LINEA }} />
+          {/* Vertical line down from node */}
+          <div style={{ width: 1, height: 26, background: LINE }} />
 
-          {hijoUnico ? (
-            // Hijo único: línea recta
-            <NodoConHijos
-              nodo={nodo.hijos[0]}
-              idSeleccionado={idSeleccionado}
-              alSeleccionar={alSeleccionar}
+          {/* Add-child button — only for non-root nodes with children */}
+          {!isRoot && (
+            <>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onAddChild?.(node);
+                }}
+                title="Add child position"
+                className="w-6 h-6 rounded-full bg-emerald-500 hover:bg-emerald-400 flex items-center justify-center text-white transition-colors shadow-sm z-10"
+              >
+                <Plus size={12} />
+              </button>
+              <div style={{ width: 1, height: 14, background: LINE }} />
+            </>
+          )}
+
+          {/* Children layout */}
+          {node.children.length === 1 ? (
+            <NodeWithChildren
+              node={node.children[0]}
+              selectedId={selectedId}
+              onSelect={onSelect}
+              onAddChild={onAddChild}
+              onEdit={onEdit}
+              onDetach={onDetach}
             />
           ) : (
-            // Múltiples hijos: usar tabla de conectores
-            <div style={{ display: "flex", alignItems: "flex-start" }}>
-              {nodo.hijos.map((hijo, idx) => {
-                const esPrimero = idx === 0;
-                const esUltimo = idx === nodo.hijos.length - 1;
-
+            <div className="flex items-start">
+              {node.children.map((child, idx) => {
+                const isFirst = idx === 0;
+                const isLast = idx === node.children.length - 1;
                 return (
-                  <div
-                    key={hijo.id}
-                    style={{ display: "flex", flexDirection: "column", alignItems: "center", padding: "0 16px" }}
-                  >
-                    {/* Conector en T: dos mitades */}
-                    <div style={{ display: "flex", width: "100%", height: 32 }}>
-                      {/* Mitad izquierda */}
+                  <div key={child.id} className="flex flex-col items-center px-5">
+                    {/* T-connector */}
+                    <div className="flex w-full" style={{ height: 24 }}>
                       <div
                         style={{
                           flex: 1,
-                          borderTop: esPrimero ? "none" : `1px solid ${COLOR_LINEA}`,
-                          borderRight: `1px solid ${COLOR_LINEA}`,
+                          borderTop: isFirst ? "none" : `1px solid ${LINE}`,
+                          borderRight: `1px solid ${LINE}`,
                         }}
                       />
-                      {/* Mitad derecha */}
                       <div
                         style={{
                           flex: 1,
-                          borderTop: esUltimo ? "none" : `1px solid ${COLOR_LINEA}`,
-                          borderLeft: `1px solid ${COLOR_LINEA}`,
+                          borderTop: isLast ? "none" : `1px solid ${LINE}`,
+                          borderLeft: `1px solid ${LINE}`,
                         }}
                       />
                     </div>
-
-                    <NodoConHijos
-                      nodo={hijo}
-                      idSeleccionado={idSeleccionado}
-                      alSeleccionar={alSeleccionar}
+                    <NodeWithChildren
+                      node={child}
+                      selectedId={selectedId}
+                      onSelect={onSelect}
+                      onAddChild={onAddChild}
+                      onEdit={onEdit}
+                      onDetach={onDetach}
                     />
                   </div>
                 );
@@ -98,82 +127,124 @@ function NodoConHijos({
   );
 }
 
-export default function OrgTree({ arbol, idSeleccionado, alSeleccionar }: OrgTreeProps) {
-  const [escala, setEscala] = useState(0.9);
-  const [traslado, setTraslado] = useState({ x: 0, y: 0 });
-  const [arrastrandose, setArrastrandose] = useState(false);
-  const inicioArrastre = useRef<{ x: number; y: number; tx: number; ty: number } | null>(null);
+export default function OrgTree({
+  tree,
+  selectedId,
+  onSelect,
+  onAddChild,
+  onEdit,
+  onDetach,
+  scale,
+  onZoomIn,
+  onZoomOut,
+  onReset,
+}: OrgTreeProps) {
+  const [offset, setOffset] = useState({ x: 0, y: 0 });
+  const [dragging, setDragging] = useState(false);
+  const dragStart = useRef<{ x: number; y: number; ox: number; oy: number } | null>(null);
 
-  const alPresionarMouse = useCallback((e: React.MouseEvent) => {
-    if ((e.target as HTMLElement).closest("button")) return;
-    setArrastrandose(true);
-    inicioArrastre.current = { x: e.clientX, y: e.clientY, tx: traslado.x, ty: traslado.y };
-  }, [traslado]);
+  const onMouseDown = useCallback(
+    (e: React.MouseEvent) => {
+      const el = e.target as HTMLElement;
+      // Don't start drag when clicking on nodes or buttons
+      if (el.closest("button") || el.closest("[data-nodecard]")) return;
+      setDragging(true);
+      dragStart.current = { x: e.clientX, y: e.clientY, ox: offset.x, oy: offset.y };
+    },
+    [offset]
+  );
 
-  const alMoverMouse = useCallback((e: React.MouseEvent) => {
-    if (!arrastrandose || !inicioArrastre.current) return;
-    setTraslado({
-      x: inicioArrastre.current.tx + (e.clientX - inicioArrastre.current.x),
-      y: inicioArrastre.current.ty + (e.clientY - inicioArrastre.current.y),
-    });
-  }, [arrastrandose]);
+  const onMouseMove = useCallback(
+    (e: React.MouseEvent) => {
+      if (!dragging || !dragStart.current) return;
+      setOffset({
+        x: dragStart.current.ox + (e.clientX - dragStart.current.x),
+        y: dragStart.current.oy + (e.clientY - dragStart.current.y),
+      });
+    },
+    [dragging]
+  );
 
-  const alSoltarMouse = useCallback(() => {
-    setArrastrandose(false);
-    inicioArrastre.current = null;
+  const onMouseUp = useCallback(() => {
+    setDragging(false);
+    dragStart.current = null;
   }, []);
 
-  const alRueda = useCallback((e: React.WheelEvent) => {
+  const onWheel = useCallback((e: React.WheelEvent) => {
     e.preventDefault();
-    setEscala((s) => Math.min(2, Math.max(0.3, s - e.deltaY * 0.001)));
   }, []);
 
   return (
-    <div style={{ position: "relative", width: "100%", height: "100%", overflow: "hidden", background: "#ECEFF1" }}>
-      <div
-        style={{ width: "100%", height: "100%", display: "flex", alignItems: "flex-start", justifyContent: "center", paddingTop: 48, cursor: arrastrandose ? "grabbing" : "grab" }}
-        onMouseDown={alPresionarMouse}
-        onMouseMove={alMoverMouse}
-        onMouseUp={alSoltarMouse}
-        onMouseLeave={alSoltarMouse}
-        onWheel={alRueda}
-      >
-        <div
-          style={{
-            transform: `translate(${traslado.x}px, ${traslado.y}px) scale(${escala})`,
-            transformOrigin: "top center",
-            transition: arrastrandose ? "none" : "transform 0.1s ease-out",
-            paddingBottom: 64,
-          }}
-        >
-          <NodoConHijos
-            nodo={arbol}
-            idSeleccionado={idSeleccionado}
-            alSeleccionar={alSeleccionar}
-            esRaiz
-          />
+    <div className="relative flex-1 overflow-hidden flex flex-col">
+      {/* Toolbar */}
+      <div className="flex items-center justify-between px-5 py-3.5 border-b border-[#f0f4f5] shrink-0">
+        <span className="text-sm font-semibold text-[#0F1819]">Hierarchy Tree</span>
+        <div className="flex items-center gap-0.5">
+          <ZoomBtn onClick={onZoomOut} title="Zoom out"><ZoomOut size={14} /></ZoomBtn>
+          <ZoomBtn onClick={onZoomIn} title="Zoom in"><ZoomIn size={14} /></ZoomBtn>
+          <ZoomBtn onClick={onReset} title="Fit view"><Maximize2 size={14} /></ZoomBtn>
         </div>
       </div>
 
-      {/* Controles de zoom */}
-      <div className="absolute bottom-5 left-5 flex items-center gap-1 bg-white rounded-xl shadow-md px-2 py-1.5 border border-[#d1dde2]">
-        <BtnControl onClick={() => setEscala(s => Math.max(0.3, s - 0.15))} titulo="Alejar"><ZoomOut size={14} /></BtnControl>
-        <BtnControl onClick={() => setEscala(s => Math.min(2, s + 0.15))} titulo="Acercar"><ZoomIn size={14} /></BtnControl>
-        <div className="w-px h-4 bg-[#d1dde2] mx-0.5" />
-        <BtnControl onClick={() => { setEscala(0.9); setTraslado({ x: 0, y: 0 }); }} titulo="Ajustar vista"><Maximize2 size={14} /></BtnControl>
-        <BtnControl onClick={() => alert("Integrar html2canvas para descarga")} titulo="Descargar"><Download size={14} /></BtnControl>
-      </div>
-
-      <div className="absolute bottom-5 left-1/2 -translate-x-1/2 text-[10px] text-[#8aa3ad] bg-white rounded-lg px-2 py-1 border border-[#d1dde2]">
-        {Math.round(escala * 100)}%
+      {/* Canvas */}
+      <div
+        className="flex-1 overflow-hidden"
+        style={{ cursor: dragging ? "grabbing" : "grab" }}
+        onMouseDown={onMouseDown}
+        onMouseMove={onMouseMove}
+        onMouseUp={onMouseUp}
+        onMouseLeave={onMouseUp}
+        onWheel={onWheel}
+      >
+        <div
+          style={{
+            width: "100%",
+            height: "100%",
+            display: "flex",
+            alignItems: "flex-start",
+            justifyContent: "center",
+            paddingTop: 40,
+            paddingBottom: 48,
+          }}
+        >
+          <div
+            style={{
+              transform: `translate(${offset.x}px, ${offset.y}px) scale(${scale})`,
+              transformOrigin: "top center",
+              transition: dragging ? "none" : "transform 0.12s ease-out",
+            }}
+          >
+            <NodeWithChildren
+              node={tree}
+              selectedId={selectedId}
+              onSelect={onSelect}
+              onAddChild={onAddChild}
+              onEdit={onEdit}
+              onDetach={onDetach}
+              isRoot
+            />
+          </div>
+        </div>
       </div>
     </div>
   );
 }
 
-function BtnControl({ onClick, titulo, children }: { onClick: () => void; titulo: string; children: React.ReactNode }) {
+function ZoomBtn({
+  onClick,
+  title,
+  children,
+}: {
+  onClick: () => void;
+  title: string;
+  children: React.ReactNode;
+}) {
   return (
-    <button onClick={onClick} title={titulo} className="p-1.5 text-[#203D47] hover:text-[#0F1819] hover:bg-[#ECEFF1] rounded-lg transition-colors">
+    <button
+      onClick={onClick}
+      title={title}
+      className="p-1.5 text-[#8aa3ad] hover:text-[#0F1819] hover:bg-[#f4f7f8] rounded-lg transition-colors"
+    >
       {children}
     </button>
   );

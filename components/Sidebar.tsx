@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
@@ -15,13 +14,33 @@ import {
 
 import { logOutUser } from "@/services/logOut";
 
-const ITEMS_NAV = [
+interface SubItem {
+  etiqueta: string;
+  href: string;
+}
+
+interface NavItem {
+  etiqueta: string;
+  href: string;
+  icono: React.ElementType;
+  subItems?: SubItem[];
+}
+
+const ITEMS_NAV: NavItem[] = [
   { etiqueta: "Panel Principal", href: "/dashboard", icono: LayoutDashboard },
   { etiqueta: "Perfil de Usuario", href: "/dashboard/perfil", icono: UserRound },
   { etiqueta: "Organigrama", href: "/dashboard/org-chart", icono: GitFork },
-  // { etiqueta: "Directorio de Empleados", href: "/dashboard/empleados", icono: Users },
-  { etiqueta: "Gestion de Areas", href: "/dashboard/areas", icono: FolderKanban },
-  // { etiqueta: "Contratos", href: "/dashboard/contratos", icono: FileText },
+  { etiqueta: "Directorio de Empleados", href: "/dashboard/empleados", icono: Users },
+  {
+    etiqueta: "Gestion de Areas",
+    href: "/dashboard/areas",
+    icono: FolderKanban,
+    subItems: [
+      { etiqueta: "Areas", href: "/dashboard/areas" },
+      { etiqueta: "Posiciones", href: "/dashboard/areas/positions" },
+    ],
+  },
+  { etiqueta: "Contratos", href: "/dashboard/contratos", icono: FileText },
 ];
 
 export default function Sidebar() {
@@ -58,25 +77,44 @@ export default function Sidebar() {
 
       {/* Navegacion principal */}
       <nav className="flex flex-col gap-1 px-3 py-4 flex-1">
-        {ITEMS_NAV.map(({ etiqueta, href, icono: Icono }) => {
+        {ITEMS_NAV.map(({ etiqueta, href, icono: Icono, subItems }) => {
           const activo = estaActivo(href);
 
           return (
-            <Link
-              key={href}
-              href={href}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all duration-150 ${
-                activo
-                  ? "bg-[#1E333A] text-white font-semibold"
-                  : "text-[#8aa3ad] hover:bg-[#1E333A] hover:text-white"
-              }`}
-            >
-              <Icono
-                size={16}
-                className={activo ? "text-emerald-400" : "text-[#8aa3ad]"}
-              />
-              {etiqueta}
-            </Link>
+            <div key={href}>
+              <Link
+                href={href}
+                className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all duration-150 ${
+                  activo
+                    ? "bg-[#1E333A] text-white font-semibold"
+                    : "text-[#8aa3ad] hover:bg-[#1E333A] hover:text-white"
+                }`}
+              >
+                <Icono
+                  size={16}
+                  className={activo ? "text-emerald-400" : "text-[#8aa3ad]"}
+                />
+                {etiqueta}
+              </Link>
+
+              {activo && subItems && subItems.length > 0 && (
+                <div className="ml-4 mt-0.5 flex flex-col gap-0.5 border-l border-[#1E333A] pl-3">
+                  {subItems.map((sub) => (
+                    <Link
+                      key={sub.href}
+                      href={sub.href}
+                      className={`px-2 py-1.5 rounded-lg text-xs transition-all duration-150 ${
+                        rutaActual === sub.href
+                          ? "text-white font-semibold bg-[#1E333A]"
+                          : "text-[#8aa3ad] hover:text-white hover:bg-[#1E333A]"
+                      }`}
+                    >
+                      {sub.etiqueta}
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
           );
         })}
       </nav>
