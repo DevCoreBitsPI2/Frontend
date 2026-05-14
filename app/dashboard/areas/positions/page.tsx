@@ -227,16 +227,15 @@ function EditPositionModal({
   position: PositionEntry;
   onClose: () => void;
   onSave: (updates: Pick<PositionEntry, "name" | "status" | "department" | "location" | "employmentType">) => void;
-}) {
-  const [name, setName] = useState(position.name);
-  const [isActive, setIsActive] = useState(position.status === "Active");
-  const [area, setArea] = useState(position.department);
-  const [location, setLocation] = useState(position.location ?? "New York HQ");
-  const [employmentType, setEmploymentType] = useState(position.employmentType ?? "Full-time");
-
-  return (
-    <div className="fixed inset-0 z-40 bg-black/40 flex items-center justify-center">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm mx-4 p-6">
+      )}
+      {/* Toast */}
+      {toast && (
+        <SuccessToast
+          title={toast.title}
+          subtitle={toast.subtitle}
+          onClose={() => setToast(null)}
+        />
+      )}
 
         {/* Header */}
         <div className="flex items-start justify-between mb-5">
