@@ -66,7 +66,7 @@ export default function NewAreaModal({ onCerrar, onCreada }: NewAreaModalProps) 
               value={nombre}
               onChange={(e) => { setNombre(e.target.value); setErrores((p) => ({ ...p, nombre: undefined })); }}
               placeholder="ej. Marketing de Producto"
-              className={`w-full px-3.5 py-2.5 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-400 text-[#0F1819] placeholder:text-[#c5d5db] ${
+              className={`placeholder:text-gray-500  w-full px-3.5 py-2.5 text-sm  border rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-400 text-[#0F1819] placeholder:text-[#c5d5db] ${
                 errores.nombre ? "border-rose-400 bg-rose-50" : "border-[#d1dde2]"
               }`}
             />
@@ -82,7 +82,7 @@ export default function NewAreaModal({ onCerrar, onCreada }: NewAreaModalProps) 
               placeholder="Proporciona una breve descripcion de las responsabilidades y proposito del area..."
               rows={4}
               maxLength={500}
-              className={`w-full px-3.5 py-2.5 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-400 text-[#0F1819] placeholder:text-[#c5d5db] resize-none ${
+              className={`placeholder:text-gray-500 w-full px-3.5 py-2.5 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-400 text-[#0F1819] placeholder:text-[#c5d5db] resize-none ${
                 errores.descripcion ? "border-rose-400 bg-rose-50" : "border-[#d1dde2]"
               }`}
             />
@@ -95,7 +95,7 @@ export default function NewAreaModal({ onCerrar, onCreada }: NewAreaModalProps) 
         <div className="flex items-center justify-end gap-3 px-6 pb-6">
           <button
             onClick={onCerrar}
-            className="px-4 py-2 text-sm text-[#8aa3ad] hover:text-[#0F1819] border border-[#d1dde2] rounded-lg transition-colors"
+            className="px-4 py-2 text-sm text-gray-700 hover:text-white border hover:bg-red-600 border-red-600 rounded-lg transition-colors"
           >
             Cancelar
           </button>
