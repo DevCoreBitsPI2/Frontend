@@ -106,17 +106,17 @@ export default function PaginaDirectorioEmpleados() {
                     key={emp.id}
                     className="bg-white rounded-2xl border border-[#e8eef0] p-5 flex flex-col gap-4 hover:shadow-md transition-shadow"
                   >
-                    <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#203D47] to-[#0F1819] flex items-center justify-center text-white text-sm font-semibold shrink-0">
-                        {iniciales}
-                      </div>
-                      <div className="flex flex-col overflow-hidden">
-                        <h3 className="text-sm font-bold text-[#0F1819] truncate">
-                          {emp.nombre} {emp.apellidos}
-                        </h3>
-                        <p className="text-xs text-[#8aa3ad] truncate">{emp.cargo}</p>
-                      </div>
-                    </div>
+                      <Link href={`/dashboard/empleados/${emp.id}`} className="flex items-center gap-3 hover:opacity-80 transition-opacity">
+                        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#203D47] to-[#0F1819] flex items-center justify-center text-white text-sm font-semibold shrink-0">
+                          {iniciales}
+                        </div>
+                        <div className="flex flex-col overflow-hidden">
+                          <h3 className="text-sm font-bold text-[#0F1819] truncate">
+                            {emp.nombre} {emp.apellidos}
+                          </h3>
+                          <p className="text-xs text-[#8aa3ad] truncate">{emp.cargo}</p>
+                        </div>
+                      </Link>
 
                     <div className="flex flex-col gap-1.5 text-xs text-[#576975]">
                       <span className="font-mono text-[11px] text-[#8aa3ad]">
