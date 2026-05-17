@@ -14,7 +14,7 @@ export interface Empleado {
   foto: string;
 }
 
-const EMPLEADOS_MOCK: Empleado[] = [
+export const EMPLEADOS_MOCK: Empleado[] = [
   {
     id: "9284",
     codigoEmpleado: "EMP-9284",
