@@ -1,5 +1,7 @@
 "use client";
 import DeletePositionModal from "@/components/areas/positions/DeletePositionModal";
+
+import ViewPositionModal from "@/components/areas/positions/viewPositionModal";
 import { useState, useEffect, useRef, useCallback } from "react";
 import {
   ChevronRight,
@@ -10,6 +12,7 @@ import {
   X,
   Pencil,
   Trash2,
+  Eye,
   Plus,
 } from "lucide-react";
 import {
@@ -292,6 +295,8 @@ function NewPositionModal({
 // ─────────────────────────────────────────────────────────────────────────────
 
 export default function PositionsPage() {
+  const [posicionAVer, setPosicionAVer] = useState<Position | null>(null); //Nuevos estados
+  const [menuPos, setMenuPos] = useState<{ top: number; left: number } | null>(null); //Nuevos estados
   const [positions, setPositions] = useState<Position[]>([]);
   const [activeTab, setActiveTab] = useState<ActiveTab>("All");
   const [search, setSearch] = useState("");
@@ -397,7 +402,7 @@ const handleConfirmarEliminar = async (position: Position) => {
   }
 };
 
-  return (
+return (
     <div className="min-h-screen bg-[#ECEFF1]">
       {/* Header */}
       <div className="bg-white border-b border-[#BDD5EA]">
@@ -409,7 +414,6 @@ const handleConfirmarEliminar = async (position: Position) => {
             <ChevronRight className="w-4 h-4" />
             <span className="text-[#0F1819] font-medium">Posiciones</span>
           </div>
-
           <div className="flex items-center justify-between">
             <h1 className="text-2xl font-bold text-[#0F1819]">
               Gestión de Posiciones
@@ -442,8 +446,8 @@ const handleConfirmarEliminar = async (position: Position) => {
                 {tab === "All"
                   ? "Todas las Posiciones"
                   : tab === "Hierarchy"
-                    ? "Jerarquía"
-                    : "Archivadas"}
+                  ? "Jerarquía"
+                  : "Archivadas"}
               </button>
             ))}
           </div>
@@ -495,15 +499,13 @@ const handleConfirmarEliminar = async (position: Position) => {
 
             {/* Table Body */}
             <div className="divide-y divide-[#BDD5EA]">
-              {positions.map((position, idx) => (
+              {positions.map((position) => (
                 <div
                   key={position.id}
                   className="grid grid-cols-12 gap-4 px-6 py-4 hover:bg-gray-50 transition-colors"
                 >
                   <div className="col-span-3">
-                    <p className="font-semibold text-[#0F1819]">
-                      {position.nombre}
-                    </p>
+                    <p className="font-semibold text-[#0F1819]">{position.nombre}</p>
                     <p className="text-xs text-[#8aa3ad]">{position.id}</p>
                   </div>
 
@@ -519,14 +521,19 @@ const handleConfirmarEliminar = async (position: Position) => {
                     <StatusBadge status={position.estado} />
                   </div>
 
-                  <div className="col-span-2 relative">
+                  <div className="col-span-2">
                     <button
                       data-menu-trigger
-                      onClick={() =>
-                        setOpenMenuId(
-                          openMenuId === position.id ? null : position.id
-                        )
-                      }
+                      onClick={(e) => {
+                        if (openMenuId === position.id) {
+                          setOpenMenuId(null);
+                          setMenuPos(null);
+                        } else {
+                          const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+                          setMenuPos({ top: rect.bottom + 4, left: rect.left - 120 });
+                          setOpenMenuId(position.id);
+                        }
+                      }}
                       className="p-2 hover:bg-gray-200 rounded-lg transition-colors"
                     >
                       <MoreVertical className="w-5 h-5 text-[#8aa3ad]" />
@@ -560,6 +567,42 @@ const handleConfirmarEliminar = async (position: Position) => {
           </>
         )}
       </div>
+
+      {/* Dropdown flotante — fuera de la tabla para evitar overflow-hidden */}
+      {openMenuId && menuPos && (
+        <div
+          data-menu-trigger
+          className="fixed bg-white border border-[#BDD5EA] rounded-lg shadow-lg py-2 z-50 min-w-max"
+          style={{ top: menuPos.top, left: menuPos.left }}
+        >
+          <button
+            onClick={() => {
+              const pos = positions.find((p) => p.id === openMenuId);
+              if (pos) {
+                setOpenMenuId(null);
+                setMenuPos(null);
+                setPosicionAVer(pos);
+              }
+            }}
+            className="w-full px-4 py-2 text-sm text-[#0F1819] hover:bg-gray-100 flex items-center gap-2 transition-colors"
+          >
+            <Eye className="w-4 h-4" />
+            Ver detalles
+          </button>
+          <button
+            className="w-full px-4 py-2 text-sm text-[#0F1819] hover:bg-gray-100 flex items-center gap-2 transition-colors"
+          >
+            <Pencil className="w-4 h-4" />
+            Editar
+          </button>
+          <button
+            className="w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2 transition-colors"
+          >
+            <Trash2 className="w-4 h-4" />
+            Eliminar
+          </button>
+        </div>
+      )}
 
       {/* Pagination */}
       {!loading && positions.length > 0 && totalPages > 1 && (
@@ -607,7 +650,7 @@ const handleConfirmarEliminar = async (position: Position) => {
         />
       )}
 
-      {/* New Position Modal */}
+      {/* Modales */}
       <NewPositionModal
         isOpen={showNewModal}
         onClose={() => setShowNewModal(false)}
@@ -624,6 +667,12 @@ const handleConfirmarEliminar = async (position: Position) => {
     await fetchPositions();
   }}
 />
+
+      <ViewPositionModal
+        isOpen={posicionAVer !== null}
+        position={posicionAVer}
+        onCerrar={() => setPosicionAVer(null)}
+      />
     </div>
   );
 }
