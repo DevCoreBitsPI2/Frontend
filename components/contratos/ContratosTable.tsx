@@ -23,9 +23,13 @@ import {
   TipoContrato,
   ValidezContrato,
 } from "@/services/contratosService";
+import RenewContractFlow from "./RenewContractFlow";
 
 interface ContratosTableProps {
   contratos: Contrato[];
+  empleadoNombre?: string;
+  empleadoCodigo?: string;
+  onContratoRenovado?: () => void;
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -250,15 +254,23 @@ function formatFechaHora(fecha: string | null): string {
 
 function ContractDetailPanel({
   contrato,
+  empleadoNombre,
+  empleadoCodigo,
   onClose,
+  onContratoRenovado,
 }: {
   contrato: Contrato;
+  empleadoNombre: string;
+  empleadoCodigo: string;
   onClose: () => void;
+  onContratoRenovado?: () => void;
 }) {
   const [mounted, setMounted] = useState(false);
+  const [renewOpen, setRenewOpen] = useState(false);
   const estado = badgeEstado(contrato.estado);
   const tipo = etiquetaTipo(contrato.tipo);
   const router = useRouter();
+  const puedeRenovar = contrato.estado === "ACTIVO";
 
   useEffect(() => {
     setMounted(true);
@@ -381,7 +393,9 @@ function ContractDetailPanel({
           <div className="flex flex-col gap-2.5">
             <button
               type="button"
-              className="flex w-full items-center justify-center gap-2 rounded-xl border border-[#2ECC71] py-3 text-sm font-semibold text-[#2ECC71] transition-colors hover:bg-[#2ECC71]/5"
+              onClick={() => setRenewOpen(true)}
+              disabled={!puedeRenovar}
+              className="flex w-full items-center justify-center gap-2 rounded-xl border border-[#2ECC71] py-3 text-sm font-semibold text-[#2ECC71] transition-colors hover:bg-[#2ECC71]/5 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <RefreshCw size={14} />
               Renew contract
@@ -407,6 +421,19 @@ function ContractDetailPanel({
           </div>
         </div>
       </div>
+
+      <RenewContractFlow
+        isOpen={renewOpen}
+        contrato={contrato}
+        empleadoNombre={empleadoNombre}
+        empleadoCodigo={empleadoCodigo}
+        onClose={() => setRenewOpen(false)}
+        onSuccess={() => {
+          setRenewOpen(false);
+          onClose();
+          onContratoRenovado?.();
+        }}
+      />
     </>,
     document.body
   );
@@ -414,7 +441,12 @@ function ContractDetailPanel({
 
 // ── Main table ────────────────────────────────────────────────────────────────
 
-export default function ContratosTable({ contratos }: ContratosTableProps) {
+export default function ContratosTable({
+  contratos,
+  empleadoNombre = "",
+  empleadoCodigo = "",
+  onContratoRenovado,
+}: ContratosTableProps) {
   const [panelContrato, setPanelContrato] = useState<Contrato | null>(null);
 
   return (
@@ -485,7 +517,10 @@ export default function ContratosTable({ contratos }: ContratosTableProps) {
       {panelContrato && (
         <ContractDetailPanel
           contrato={panelContrato}
+          empleadoNombre={empleadoNombre}
+          empleadoCodigo={empleadoCodigo}
           onClose={() => setPanelContrato(null)}
+          onContratoRenovado={onContratoRenovado}
         />
       )}
     </>
