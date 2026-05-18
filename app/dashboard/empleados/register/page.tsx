@@ -79,14 +79,6 @@ const Page = () => {
             <span className="text-[#8aa3ad]">/</span>
             <span className="text-[#203D47] font-semibold">Register Employee</span>
           </div>
-          <div className="flex gap-3">
-            <button
-              onClick={next}
-              className="px-4 py-2 bg-[#2ECC71] text-white rounded text-sm font-semibold hover:bg-green-600 transition"
-            >
-              {step === 3 ? "Confirm Registration" : "Save and Continue →"}
-            </button>
-          </div>
         </div>
 
         <div className="flex items-center gap-3">
