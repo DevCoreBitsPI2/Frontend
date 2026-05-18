@@ -16,16 +16,19 @@ import {
   Pencil,
   Ban,
   User,
+  AlertTriangle,
 } from "lucide-react";
 import {
   Contrato,
   EstadoContrato,
   TipoContrato,
   ValidezContrato,
+  anularContrato,
 } from "@/services/contratosService";
 
 interface ContratosTableProps {
   contratos: Contrato[];
+  onVoidSuccess?: (id: string) => void;
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -251,21 +254,41 @@ function formatFechaHora(fecha: string | null): string {
 function ContractDetailPanel({
   contrato,
   onClose,
+  onVoidSuccess,
 }: {
   contrato: Contrato;
   onClose: () => void;
+  onVoidSuccess: (id: string) => void;
 }) {
   const [mounted, setMounted] = useState(false);
+  const [showVoidConfirm, setShowVoidConfirm] = useState(false);
+  const [voiding, setVoiding] = useState(false);
   const estado = badgeEstado(contrato.estado);
   const tipo = etiquetaTipo(contrato.tipo);
   const router = useRouter();
 
   useEffect(() => {
     setMounted(true);
-    const handler = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        if (showVoidConfirm) setShowVoidConfirm(false);
+        else onClose();
+      }
+    };
     document.addEventListener("keydown", handler);
     return () => document.removeEventListener("keydown", handler);
-  }, [onClose]);
+  }, [onClose, showVoidConfirm]);
+
+  async function handleVoidConfirm() {
+    setVoiding(true);
+    try {
+      await anularContrato(contrato.id);
+      setShowVoidConfirm(false);
+      onVoidSuccess(contrato.id);
+    } finally {
+      setVoiding(false);
+    }
+  }
 
   if (!mounted) return null;
 
@@ -399,7 +422,9 @@ function ContractDetailPanel({
             </button>
             <button
               type="button"
-              className="flex w-full items-center justify-center gap-2 rounded-xl border border-rose-400 py-3 text-sm font-semibold text-rose-500 transition-colors hover:bg-rose-50"
+              disabled={contrato.estado === "ANULADO"}
+              onClick={() => setShowVoidConfirm(true)}
+              className="flex w-full items-center justify-center gap-2 rounded-xl border border-rose-400 py-3 text-sm font-semibold text-rose-500 transition-colors hover:bg-rose-50 disabled:opacity-40 disabled:cursor-not-allowed"
             >
               <Ban size={14} />
               Void Contract
@@ -407,6 +432,44 @@ function ContractDetailPanel({
           </div>
         </div>
       </div>
+
+      {/* ── Void confirmation modal ── */}
+      {showVoidConfirm && (
+        <>
+          <div className="fixed inset-0 z-[10000] bg-black/40" onClick={() => !voiding && setShowVoidConfirm(false)} />
+          <div className="fixed inset-0 z-[10001] flex items-center justify-center p-4 pointer-events-none">
+            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-[380px] p-6 flex flex-col items-center gap-4 pointer-events-auto">
+              <div className="w-14 h-14 rounded-full bg-rose-50 flex items-center justify-center">
+                <AlertTriangle size={28} className="text-rose-500" />
+              </div>
+              <h3 className="text-base font-bold text-[#0F1819] text-center">
+                Contract Cancellation Warning
+              </h3>
+              <p className="text-sm text-[#576975] text-center leading-relaxed">
+                You are about to cancel this contract. If you proceed, this action cannot be undone. Once confirmed, the employee&apos;s status within the organization could be affected. Please review and update the employee&apos;s status from the Employee Panel if necessary before proceeding.
+              </p>
+              <div className="flex gap-3 w-full mt-1">
+                <button
+                  type="button"
+                  disabled={voiding}
+                  onClick={() => setShowVoidConfirm(false)}
+                  className="flex-1 py-2.5 rounded-xl border border-[#d1dde2] text-sm font-semibold text-[#0F1819] hover:bg-[#f4f7f8] transition-colors disabled:opacity-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  disabled={voiding}
+                  onClick={handleVoidConfirm}
+                  className="flex-1 py-2.5 rounded-xl bg-emerald-500 text-sm font-semibold text-white hover:bg-emerald-400 transition-colors disabled:opacity-50"
+                >
+                  {voiding ? "Voiding…" : "Continue"}
+                </button>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
     </>,
     document.body
   );
@@ -414,7 +477,7 @@ function ContractDetailPanel({
 
 // ── Main table ────────────────────────────────────────────────────────────────
 
-export default function ContratosTable({ contratos }: ContratosTableProps) {
+export default function ContratosTable({ contratos, onVoidSuccess }: ContratosTableProps) {
   const [panelContrato, setPanelContrato] = useState<Contrato | null>(null);
 
   return (
@@ -486,6 +549,10 @@ export default function ContratosTable({ contratos }: ContratosTableProps) {
         <ContractDetailPanel
           contrato={panelContrato}
           onClose={() => setPanelContrato(null)}
+          onVoidSuccess={(id) => {
+            setPanelContrato(null);
+            onVoidSuccess?.(id);
+          }}
         />
       )}
     </>
