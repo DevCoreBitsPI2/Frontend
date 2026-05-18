@@ -30,24 +30,19 @@ const CONFIG_ESTADO: Record<
   },
   RETIRADO: {
     etiqueta: "Retired",
-    trackColor: "bg-gray-300",
-    thumbPosition: "translate-x-[36px]",
-    labelColor: "text-gray-400",
+    trackColor: "bg-rose-500",
+    thumbPosition: "translate-x-[22px]",
+    labelColor: "text-rose-500",
   },
 } as const;
 
-// Toggle visual — solo representación, no clickeable
 function StatusToggle({ estado }: { estado: EstadoEmpleado }) {
   const config = CONFIG_ESTADO[estado];
 
   return (
     <div className="flex items-center gap-2.5">
       <span className="text-xs font-medium text-[#8aa3ad]">Status</span>
-      {/* Track */}
-      <div
-        className={`relative w-10 h-5 rounded-full transition-colors duration-300 ${config.trackColor}`}
-      >
-        {/* Thumb */}
+      <div className={`relative w-10 h-5 rounded-full transition-colors duration-300 ${config.trackColor}`}>
         <span
           className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow-sm transition-transform duration-300 ${config.thumbPosition}`}
         />
@@ -66,6 +61,7 @@ export default function EmployeeProfileCard({ empleado, onEstadoCambiado }: Prop
   const [menuAbierto, setMenuAbierto] = useState(false);
   const [modalEstadoAbierto, setModalEstadoAbierto] = useState(false);
   const [toastVisible, setToastVisible] = useState(false);
+  const [toastMsg, setToastMsg] = useState({ title: "", message: "" });
   const menuRef = useRef<HTMLDivElement>(null);
 
   const iniciales = `${empleado.nombre.charAt(0)}${empleado.apellidos.charAt(0)}`.toUpperCase();
@@ -86,6 +82,17 @@ export default function EmployeeProfileCard({ empleado, onEstadoCambiado }: Prop
   ) => {
     onEstadoCambiado(nuevoEstado);
     setModalEstadoAbierto(false);
+    setToastMsg(
+      nuevoEstado === "RETIRADO"
+        ? {
+            title: "Proceso de retiro completado",
+            message: "El empleado fue retirado del sistema correctamente.",
+          }
+        : {
+            title: "Estado actualizado con éxito",
+            message: "El estado del empleado fue cambiado correctamente.",
+          }
+    );
     setToastVisible(true);
   };
 
@@ -107,7 +114,7 @@ export default function EmployeeProfileCard({ empleado, onEstadoCambiado }: Prop
                       ? "bg-emerald-500"
                       : empleado.estado === "SUSPENDIDO"
                       ? "bg-amber-400"
-                      : "bg-gray-300"
+                      : "bg-rose-500"
                   }`}
                 />
               </div>
@@ -136,7 +143,7 @@ export default function EmployeeProfileCard({ empleado, onEstadoCambiado }: Prop
               </div>
             </div>
 
-            {/* Toggle visual + menú */}
+            {/* Toggle + menú */}
             <div className="flex flex-col items-end gap-3 shrink-0">
               <StatusToggle estado={empleado.estado} />
 
@@ -363,8 +370,8 @@ export default function EmployeeProfileCard({ empleado, onEstadoCambiado }: Prop
       <ToastNotification
         isVisible={toastVisible}
         onClose={() => setToastVisible(false)}
-        title="Estado actualizado con éxito"
-        message="El estado del empleado fue cambiado correctamente."
+        title={toastMsg.title}
+        message={toastMsg.message}
       />
     </div>
   );
