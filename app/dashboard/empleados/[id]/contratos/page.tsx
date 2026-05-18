@@ -29,6 +29,17 @@ export default function PaginaContratosEmpleado() {
     return null;
   });
 
+  const recargarContratos = () => {
+    obtenerContratosPorEmpleado(empleadoId)
+      .then(setContratos)
+      .catch(() => setError("No se pudieron cargar los contratos."));
+  };
+
+  const handleContratoRenovado = () => {
+    recargarContratos();
+    setToast("Contrato renovado con éxito");
+  };
+
   const filtroEstado = searchParams.get("estado") ?? "ALL";
 
   useEffect(() => {
@@ -212,7 +223,12 @@ export default function PaginaContratosEmpleado() {
               </div>
             </div>
 
-            <ContratosTable contratos={contratosFiltrados} />
+            <ContratosTable
+              contratos={contratosFiltrados}
+              empleadoNombre={`${empleado.nombre} ${empleado.apellidos}`}
+              empleadoCodigo={empleado.codigoEmpleado}
+              onContratoRenovado={handleContratoRenovado}
+            />
 
             <p className="text-xs text-[#8aa3ad] mt-4">
               Showing {contratosFiltrados.length} contracts of historical records
