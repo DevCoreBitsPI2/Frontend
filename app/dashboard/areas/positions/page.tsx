@@ -1,4 +1,5 @@
 "use client";
+import DeletePositionModal from "@/components/areas/positions/DeletePositionModal";
 
 import ViewPositionModal from "@/components/areas/positions/viewPositionModal";
 import { useState, useEffect, useRef, useCallback } from "react";
@@ -307,6 +308,8 @@ export default function PositionsPage() {
   const [modalLoading, setModalLoading] = useState(false);
   const [toast, setToast] = useState<ToastMessage | null>(null);
   const menuRefs = useRef<Record<string, HTMLDivElement | null>>({});
+  const [posicionAEliminar, setPosicionAEliminar] = useState<Position | null>(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
   // Fetch positions
   const fetchPositions = useCallback(async () => {
@@ -377,29 +380,27 @@ export default function PositionsPage() {
     }
   };
 
-  const handleDeletePosition = async (id: string) => {
-    if (!window.confirm("¿Estás seguro de que deseas eliminar esta posición?"))
-      return;
+ //Nuevo handler para eliminar posición
 
-    try {
-      setLoading(true);
-      await eliminarPosicion(id);
-      setOpenMenuId(null);
-      setToast({
-        title: "Éxito",
-        subtitle: "Posición eliminada correctamente",
-        type: "success",
-      });
-      await fetchPositions();
-    } catch (error) {
-      console.error("Error deleting position:", error);
-      setToast({
-        title: "Error",
-        subtitle: "No se pudo eliminar la posición",
-        type: "error",
-      });
-    }
-  };
+const handleAbrirEliminar = (position: Position) => {
+  setOpenMenuId(null);
+  setPosicionAEliminar(position);
+};
+
+const handleConfirmarEliminar = async (position: Position) => {
+  try {
+    setDeleteLoading(true);
+    await eliminarPosicion(position.id);
+    setPosicionAEliminar(null);
+    setToast({ title: "Éxito", subtitle: "Posición eliminada correctamente", type: "success" });
+    await fetchPositions();
+  } catch (error) {
+    console.error("Error deleting position:", error);
+    setToast({ title: "Error", subtitle: "No se pudo eliminar la posición", type: "error" });
+  } finally {
+    setDeleteLoading(false);
+  }
+};
 
 return (
     <div className="min-h-screen bg-[#ECEFF1]">
@@ -537,6 +538,28 @@ return (
                     >
                       <MoreVertical className="w-5 h-5 text-[#8aa3ad]" />
                     </button>
+
+                    {openMenuId === position.id && (
+                      <div
+                      data-menu-trigger
+                        ref={(el) => {
+                          if (el) menuRefs.current[position.id] = el;
+                        }}
+                        className="absolute right-0 mt-1 bg-white border border-[#BDD5EA] rounded-lg shadow-lg py-2 z-10 min-w-max"
+                      >
+                        <button className="w-full px-4 py-2 text-sm text-[#0F1819] hover:bg-gray-100 flex items-center gap-2 transition-colors">
+                          <Pencil className="w-4 h-4" />
+                          Editar
+                        </button>
+                        <button
+                          onClick={() => handleAbrirEliminar(position)}
+                          className="w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2 transition-colors"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                          Eliminar
+                        </button>
+                      </div>
+                    )}
                   </div>
                 </div>
               ))}
@@ -634,6 +657,16 @@ return (
         onSave={handleNewPosition}
         isLoading={modalLoading}
       />
+      {/*Nuevo modal de eliminación de posiciones*/}
+      <DeletePositionModal
+  isOpen={posicionAEliminar !== null}
+  position={posicionAEliminar}
+  onCerrar={() => setPosicionAEliminar(null)}
+  onEliminada={async () => {
+    setPosicionAEliminar(null);
+    await fetchPositions();
+  }}
+/>
 
       <ViewPositionModal
         isOpen={posicionAVer !== null}
